@@ -1,0 +1,230 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "DB: Subir (docker compose up)",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Derrubar (docker compose down)",
+      "type": "shell",
+      "command": "docker compose down",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Ver logs",
+      "type": "shell",
+      "command": "docker compose logs -f",
+      "options": { "cwd": "${workspaceFolder}" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Resetar (apaga volume do banco de dev)",
+      "type": "shell",
+      "command": "docker compose down -v",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Backend: Instalar dependências",
+      "type": "shell",
+      "command": "npm install",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Subir (dev)",
+      "type": "shell",
+      "command": "npm run start:dev",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting compilation in watch mode",
+          "endsPattern": "Nest application successfully started|SIPPAT API rodando"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Backend: Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Testes unitários",
+      "type": "shell",
+      "command": "npm run test",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "group": { "kind": "test", "isDefault": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Testes unitários (watch)",
+      "type": "shell",
+      "command": "npm run test:watch",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Testes unitários (cobertura)",
+      "type": "shell",
+      "command": "npm run test:cov",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Testes E2E",
+      "type": "shell",
+      "command": "npm run test:e2e",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "group": { "kind": "test", "isDefault": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Prisma Generate",
+      "type": "shell",
+      "command": "npm run prisma:generate",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Prisma Migrate Dev (cria/aplica migration - Banco Dev)",
+      "type": "shell",
+      "command": "npm run prisma:migrate:dev",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Prisma Migrate Deploy (Banco Dev)",
+      "type": "shell",
+      "command": "npm run prisma:migrate:deploy",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Prisma Migrate Deploy (Banco Testes)",
+      "type": "shell",
+      "command": "npm run prisma:migrate:test",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Prisma Studio",
+      "type": "shell",
+      "command": "npm run prisma:studio",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Frontend: Instalar dependências",
+      "type": "shell",
+      "command": "npm install",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Subir (dev)",
+      "type": "shell",
+      "command": "npm run start",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Building\\.\\.\\.",
+          "endsPattern": "Application bundle generation complete|Local:"
+        }
+      },
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Frontend: Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Testes unitários",
+      "type": "shell",
+      "command": "npx ng test --no-watch",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": { "kind": "test", "isDefault": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Testes unitários (watch)",
+      "type": "shell",
+      "command": "npm run test",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Testes E2E (Playwright)",
+      "type": "shell",
+      "command": "npm run test:e2e",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": { "kind": "test", "isDefault": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Testes E2E (Playwright, com UI)",
+      "type": "shell",
+      "command": "npx playwright test --ui",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "Setup: Instalar tudo (backend + frontend)",
+      "dependsOn": ["Backend: Instalar dependências", "Frontend: Instalar dependências"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Setup: Subir tudo (DB + Backend + Frontend)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["DB: Subir (docker compose up)", "Backend: Subir (dev)", "Frontend: Subir (dev)"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Testes: Rodar tudo (backend + frontend)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Backend: Testes unitários",
+        "Backend: Testes E2E",
+        "Frontend: Testes unitários"
+      ],
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    }
+  ]
+}

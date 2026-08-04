@@ -1,0 +1,1 @@
+# 💡 SIPPAT - Sistema Inteligente de Processos do PAT

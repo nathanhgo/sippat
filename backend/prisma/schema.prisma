@@ -1,0 +1,181 @@
+// Esquema do Banco de Dados SIPPAT
+// Espelha .docs/database_schema.md — qualquer mudança de modelo deve ser refletida em ambos.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ATTENDANT
+}
+
+enum Gender {
+  MASCULINO
+  FEMININO
+  OUTRO
+  NAO_DECLARADO
+}
+
+enum RaceColor {
+  BRANCA
+  PRETA
+  PARDA
+  AMARELA
+  INDIGENA
+  NAO_DECLARADO
+}
+
+enum MaritalStatus {
+  SOLTEIRO
+  CASADO
+  DIVORCIADO
+  VIUVO
+  UNIAO_ESTAVEL
+}
+
+enum HousingStatus {
+  OWN
+  RENTED
+  RISK_AREA
+  UNHOUSED
+}
+
+enum ServiceType {
+  ENCAMINHAMENTO
+  ORIENTACAO
+  CADASTRO_VAGA
+  ATUALIZACAO_CADASTRAL
+  EMISSAO_DOCUMENTO
+  OUTRO
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  EXPORT
+}
+
+/// Funcionários do PAT (RF: autenticação)
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(ATTENDANT)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  attendances Attendance[]
+  auditLogs   AuditLog[]
+
+  @@map("users")
+}
+
+/// Cidadãos atendidos pelo PAT (RF-001)
+model Citizen {
+  id            String        @id @default(uuid())
+  cpf           String        @unique
+  rg            String?
+  fullName      String        @map("full_name")
+  birthDate     DateTime      @map("birth_date") @db.Date
+  gender        Gender
+  raceColor     RaceColor     @map("race_color")
+  maritalStatus MaritalStatus @map("marital_status")
+  phone         String?
+  email         String?
+  addressStreet String?       @map("address_street")
+  addressNumber String?       @map("address_number")
+  neighborhood  String?
+  zipCode       String?       @map("zip_code")
+  deletedAt     DateTime?     @map("deleted_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  socialProfile       SocialProfile?
+  professionalProfile ProfessionalProfile?
+  attendances         Attendance[]
+  auditLogs           AuditLog[]
+
+  @@index([fullName])
+  @@index([neighborhood])
+  @@map("citizens")
+}
+
+/// Indicadores socioeconômicos (RF-003) — campos sensíveis, sujeitos a criptografia (RNF-003, Fase 2)
+model SocialProfile {
+  id                   String         @id @default(uuid())
+  citizenId            String         @unique @map("citizen_id")
+  nis                  String?        @unique
+  perCapitaIncome      Decimal?       @map("per_capita_income") @db.Decimal(10, 2)
+  housingStatus        HousingStatus? @map("housing_status")
+  familyMembersCount   Int?           @map("family_members_count")
+  receivesBolsaFamilia Boolean        @default(false) @map("receives_bolsa_familia")
+  receivesBpc          Boolean        @default(false) @map("receives_bpc")
+  isPcd                Boolean        @default(false) @map("is_pcd")
+  pcdDescription       String?        @map("pcd_description")
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+
+  citizen Citizen @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+
+  @@map("social_profiles")
+}
+
+/// Perfil profissional (RF-002)
+model ProfessionalProfile {
+  id             String   @id @default(uuid())
+  citizenId      String   @unique @map("citizen_id")
+  educationLevel String?  @map("education_level")
+  courses        Json?
+  experiences    Json?
+  targetAreas    Json?    @map("target_areas")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  citizen Citizen @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+
+  @@map("professional_profiles")
+}
+
+/// Histórico de atendimentos (RF-004)
+model Attendance {
+  id          String      @id @default(uuid())
+  citizenId   String      @map("citizen_id")
+  userId      String      @map("user_id")
+  serviceType ServiceType @map("service_type")
+  notes       String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  citizen Citizen @relation(fields: [citizenId], references: [id], onDelete: Restrict)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([citizenId])
+  @@map("attendances")
+}
+
+/// Trilha de auditoria LGPD (RNF-005) — retenção de 3 meses via job agendado
+model AuditLog {
+  id        String      @id @default(uuid())
+  userId    String      @map("user_id")
+  citizenId String?     @map("citizen_id")
+  action    AuditAction
+  entity    String
+  metadata  Json?
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  citizen Citizen? @relation(fields: [citizenId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@map("audit_logs")
+}

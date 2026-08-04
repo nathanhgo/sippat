@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sippat_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sippat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sippat}
+      POSTGRES_DB: ${POSTGRES_DB:-sippat_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - sippat_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sippat} -d ${POSTGRES_DB:-sippat_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres_test:
+    image: postgres:16-alpine
+    container_name: sippat_postgres_test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_TEST_USER:-sippat}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:-sippat}
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-sippat_test}
+    ports:
+      - "${POSTGRES_TEST_PORT:-5433}:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_TEST_USER:-sippat} -d ${POSTGRES_TEST_DB:-sippat_test}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sippat_postgres_data:
