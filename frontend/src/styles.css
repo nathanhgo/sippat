@@ -1,3 +1,4 @@
 @import "tailwindcss";
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
 
 /* Estilos globais adicionais do SIPPAT entram aqui (ver .docs/visual.md) */
