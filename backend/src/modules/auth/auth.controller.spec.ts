@@ -10,6 +10,7 @@ describe('AuthController', () => {
 
   const mockAuthService = {
     login: vi.fn(),
+    register: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -40,6 +41,23 @@ describe('AuthController', () => {
       const result = await controller.login(loginDto);
       expect(result).toBe(mockResult);
       expect(service.login).toHaveBeenCalledWith(loginDto);
+    });
+  });
+
+  describe('register', () => {
+    it('deve chamar o authService.register com os dados corretos e retornar o usuário criado', async () => {
+      const registerDto = {
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        password: 'password123',
+        role: 'ATTENDANT' as any,
+      };
+      const mockResult = { id: 'user-uuid', name: 'Jane Doe', email: 'jane@example.com' };
+      mockAuthService.register.mockResolvedValue(mockResult);
+
+      const result = await controller.register(registerDto);
+      expect(result).toBe(mockResult);
+      expect(service.register).toHaveBeenCalledWith(registerDto);
     });
   });
 });

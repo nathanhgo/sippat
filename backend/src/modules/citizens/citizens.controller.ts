@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Param, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Param, Get, Query, UseGuards } from '@nestjs/common';
 import { CitizensService } from './citizens.service';
 import { CreateCitizenDto } from './dto/create-citizen.dto';
 import { UpdateCitizenDto } from './dto/update-citizen.dto';
@@ -13,6 +13,11 @@ export class CitizensController {
   @Post()
   async create(@Body() createCitizenDto: CreateCitizenDto) {
     return this.citizensService.create(createCitizenDto);
+  }
+
+  @Get()
+  async findAll(@Query() query: any) {
+    return this.citizensService.findAll(query);
   }
 
   @Get(':id')

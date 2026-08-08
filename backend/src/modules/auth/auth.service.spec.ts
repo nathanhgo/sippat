@@ -14,6 +14,7 @@ describe('AuthService', () => {
   const mockPrismaService = {
     user: {
       findUnique: vi.fn(),
+      create: vi.fn(),
     },
   };
 
@@ -155,6 +156,51 @@ describe('AuthService', () => {
       await expect(
         service.login({ email: 'notfound@example.com', password: 'password123' }),
       ).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('register', () => {
+    it('deve registrar um usuário com sucesso, salvando a senha criptografada e retornando o usuário criado', async () => {
+      const registerDto = {
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        password: 'password123',
+        role: 'ATTENDANT' as any,
+      };
+
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockPrismaService.user.create.mockImplementation((args) => {
+        return {
+          id: 'user-uuid',
+          name: args.data.name,
+          email: args.data.email,
+          passwordHash: args.data.passwordHash,
+          role: args.data.role,
+          isActive: true,
+        };
+      });
+
+      const result = await service.register(registerDto);
+
+      expect(result).toBeDefined();
+      expect(result.id).toBe('user-uuid');
+      expect(result.email).toBe('jane@example.com');
+      // A senha deve estar em hash no banco
+      expect(result.passwordHash).not.toBe('password123');
+      expect(mockPrismaService.user.create).toHaveBeenCalled();
+    });
+
+    it('deve rejeitar registro se o e-mail já estiver cadastrado', async () => {
+      const registerDto = {
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        password: 'password123',
+        role: 'ATTENDANT' as any,
+      };
+
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'existing-id' });
+
+      await expect(service.register(registerDto)).rejects.toThrow('E-mail já cadastrado');
     });
   });
 });

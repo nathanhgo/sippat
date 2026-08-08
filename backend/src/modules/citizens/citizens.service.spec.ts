@@ -26,6 +26,8 @@ describe('CitizensService', () => {
       create: vi.fn(),
       update: vi.fn(),
       findUnique: vi.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
     },
     socialProfile: {
       findUnique: vi.fn(),
@@ -147,6 +149,43 @@ describe('findOne / read', () => {
       // O valor retornado para a aplicação deve ser o texto descriptografado correto
       expect(result.socialProfile.nis).toBe('12345678901');
       expect(result.socialProfile.perCapitaIncome).toBe(500.5);
+    });
+  });
+
+  describe('findAll / advanced search', () => {
+    it('deve retornar lista de cidadãos com paginação e descriptografar campos', async () => {
+      const mockList = [
+        {
+          id: 'citizen-1',
+          fullName: 'Jane Doe',
+          cpf: '12345678909',
+          neighborhood: 'Centro',
+          socialProfile: {
+            nis: encryptHelper('12345678901'),
+            perCapitaIncome: encryptHelper('600'),
+          },
+          professionalProfile: {
+            educationLevel: 'Superior Completo',
+          }
+        }
+      ];
+
+      mockPrismaService.citizen.findMany.mockResolvedValue(mockList);
+      mockPrismaService.citizen.count.mockResolvedValue(1);
+
+      const result = await service.findAll({
+        search: 'Jane',
+        neighborhood: 'Centro',
+        educationLevel: 'Superior Completo',
+        isPcd: false,
+        page: 1,
+        limit: 10,
+      });
+
+      expect(result.data.length).toBe(1);
+      expect(result.total).toBe(1);
+      expect(result.data[0].socialProfile.perCapitaIncome).toBe(600);
+      expect(mockPrismaService.citizen.findMany).toHaveBeenCalled();
     });
   });
 });

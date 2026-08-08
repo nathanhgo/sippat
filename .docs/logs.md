@@ -38,3 +38,56 @@
 - Criado `.vscode/tasks.json` na raiz com tasks acessíveis via `Ctrl+Shift+P` → "Tasks: Run Task" para: subir/derrubar/resetar o banco, subir backend/frontend em modo dev, rodar testes (unitários, E2E, cobertura) de backend e frontend, gerar client/rodar migrations do Prisma (dev e testes) e abrir o Prisma Studio, além de tasks compostas ("Setup: Subir tudo", "Testes: Rodar tudo").
 - **Decisões estruturais registradas em `tech_stack.md`:** uso de Angular 21 (não 24) e Prisma 6 (não 7, por conflito ESM/driver-adapter obrigatório com a base CommonJS do NestJS).
 - Validação final: 12 testes de backend (3 unitários + 9 E2E) e 7 testes de frontend (5 unitários + 2 E2E) passando; `docker compose up`, migrations, `npm run start:dev` (backend) e Swagger em `http://localhost:3000/docs` testados manualmente com sucesso.
+
+## 2026-08-08 — Inicialização da feature/auth e TDD
+- Criada branch `feature/auth` para o desenvolvimento do módulo de autenticação.
+- Instaladas as dependências de segurança e autenticação no backend: `@nestjs/passport`, `passport`, `passport-jwt`, `@nestjs/jwt` e `bcrypt` (além de tipos em `@types/`).
+- Resolvido conflito de porta com outro banco local (porta alterada de 5433 para 5434).
+- Corrigido o `schema.prisma` adicionando a propriedade `url` em `datasource db` para ler a variável de ambiente `DATABASE_URL`.
+- Subidos os containers e aplicadas as migrações no banco local.
+- Criada a estrutura de pastas e arquivos esqueleto para o módulo `/backend/src/modules/auth`: `AuthModule`, `AuthController`, `AuthService`, `LoginDto`, `JwtStrategy`, `JwtAuthGuard`, `RolesGuard` e o decorator `@Roles`.
+- Escritos os testes de TDD unitários para `AuthService`, `AuthController` e `RolesGuard` mapeados aos requisitos de segurança.
+- Executados os testes e verificado o estado de falha inicial controlada (fase Red do TDD) para posterior implementação das features.
+- Corrigida a pasta do módulo para `src/modules/auth` (alinhando com a estrutura de arquitetura original).
+- Implementadas as regras do `AuthService` (hashPassword com bcrypt, validateUser com verificação de isActive/senha/e-mail no banco, e geração de token JWT no login).
+- Implementado o `RolesGuard` verificando perfis contra os metadados do reflector e do payload do JWT.
+- Corrigidas as rotas e imports no `AppModule` e verificado que toda a suíte de testes agora passa em 100% (fase Green do TDD).
+
+## 2026-08-08 — Implementação do Backend do Módulo de Cidadãos (Fase 2)
+- Criada a estrutura de pastas e arquivos esqueleto para `/backend/src/modules/citizens`.
+- Alterado o tipo do campo `perCapitaIncome` na tabela `social_profiles` no `schema.prisma` de `Decimal` para `String` para permitir armazenar os dados criptografados em repouso de forma adequada, e aplicada nova migração no banco de dados.
+- Criados validadores personalizados para class-validator: `@IsCpf()` (validação matemática por dígito verificador), `@IsNis()` (validação matemática PIS/NIS/PASEP) e `@IsCep()` (validação de formato de 8 dígitos).
+- Aplicadas validações de dados (CPF, NIS, CEP, Email) nos DTOs de criação de Cidadão (`CreateCitizenDto`).
+- Escritos testes unitários e de validação em `citizens.service.spec.ts` e `create-citizen.dto.spec.ts`.
+- Implementado helper de criptografia simétrica AES-256-CBC para criptografar campos sensíveis de `social_profiles` (`nis`, `perCapitaIncome`, `pcdDescription`) antes de persistir no banco, e descriptografá-los na leitura de forma transparente para a aplicação.
+- Implementado `CitizensService` com métodos de CRUD (`create`, `update`, `findOne`) integrados com as regras de criptografia e validação.
+- Confirmado que toda a suíte de testes do backend (incluindo autenticação e cidadãos) está passando com sucesso (100% verde).
+
+## 2026-08-08 — Migração para Angular 22 e Instalação de Material/CDK (Frontend)
+- Atualizados todos os pacotes `@angular/*` (core, common, compiler, forms, router, build, cli, compiler-cli) para a versão 22 estável.
+- Instalados os pacotes `@angular/material` e `@angular/cdk` na versão 22 para a biblioteca de componentes.
+- Atualizado o TypeScript para a versão `6.0.3` (exigência do compilador do Angular 22).
+- Validada a compatibilidade do novo stack de build e testes do Angular 22, com build completo gerado e testes rodados via Vitest com 100% de sucesso.
+- Adicionado o import do tema global `@angular/material/prebuilt-themes/indigo-pink.css` em `styles.css` para aplicar a estilização correta dos componentes do Angular Material.
+- Adicionados os links de fontes externas do Google Fonts para a fonte `Roboto` e biblioteca de ícones `Material Icons` no `index.html` para corrigir a renderização de fontes e ícones.
+
+## 2026-08-08 — Registro de Usuário do Sistema (Backend & Frontend)
+- Criado endpoint `POST /api/auth/register` no backend NestJS para criação de usuários corporativos com hashing de senhas.
+- Adicionados testes unitários para a rota de registro no `auth.service.spec.ts` e `auth.controller.spec.ts`.
+- Criado componente de cadastro de usuário no frontend (`RegisterComponent`), incluindo validações reativas de e-mail e requisitos mínimos de senha.
+- Adicionados testes unitários no frontend para o fluxo de registro e roteamento da página `/register`.
+- Atualizados os layouts globais para ocultar o cabeçalho do PAT em páginas de autenticação (`/login` e `/register`).
+
+## 2026-08-08 — Conclusão da Fase 2: CRUD de Cidadãos (Frontend)
+- Criado o serviço `CitizensService` no frontend para consumir as rotas de listagem, visualização, criação, edição e remoção de cidadãos da API.
+- Criada a página de listagem de cidadãos (`CitizenListComponent`) contendo busca em tempo real com debounce, listagem com Angular Material Table e paginação.
+- Criado o formulário em abas (`CitizenFormComponent`) para cadastro e edição de dados, agrupando em três seções: Dados Básicos, Perfil Socioeconômico e Perfil Profissional.
+- Integrado validações reativas customizadas de CPF (dígitos verificadores), NIS (algoritmo PIS/NIS) e CEP no formulário do cidadão.
+- Adicionados os testes unitários correspondentes no frontend, totalizando **34 testes passando com 100% de sucesso** e build de produção validado.
+
+
+
+
+
+
+

@@ -117,6 +117,85 @@ export class CitizensService {
     return this.decryptCitizen(citizen);
   }
 
+  async findAll(query: {
+    search?: string;
+    neighborhood?: string;
+    educationLevel?: string;
+    isPcd?: boolean;
+    minIncome?: number;
+    maxIncome?: number;
+    page?: number;
+    limit?: number;
+  }) {
+    const page = Number(query.page ?? 1);
+    const limit = Number(query.limit ?? 10);
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (query.search) {
+      where.OR = [
+        { fullName: { contains: query.search, mode: 'insensitive' } },
+        { cpf: { contains: query.search } },
+      ];
+    }
+
+    if (query.neighborhood) {
+      where.neighborhood = { contains: query.neighborhood, mode: 'insensitive' };
+    }
+
+    if (query.educationLevel) {
+      where.professionalProfile = {
+        educationLevel: { contains: query.educationLevel, mode: 'insensitive' },
+      };
+    }
+
+    if (query.isPcd !== undefined) {
+      const isPcdBool = String(query.isPcd) === 'true';
+      where.socialProfile = {
+        isPcd: isPcdBool,
+      };
+    }
+
+    const citizens = await this.prisma.citizen.findMany({
+      where,
+      include: {
+        socialProfile: true,
+        professionalProfile: true,
+      },
+    });
+
+    const decryptedCitizens = citizens.map((c) => this.decryptCitizen(c));
+
+    let filtered = decryptedCitizens;
+    if (query.minIncome !== undefined) {
+      filtered = filtered.filter(
+        (c) =>
+          c.socialProfile &&
+          c.socialProfile.perCapitaIncome !== null &&
+          Number(c.socialProfile.perCapitaIncome) >= Number(query.minIncome),
+      );
+    }
+    if (query.maxIncome !== undefined) {
+      filtered = filtered.filter(
+        (c) =>
+          c.socialProfile &&
+          c.socialProfile.perCapitaIncome !== null &&
+          Number(c.socialProfile.perCapitaIncome) <= Number(query.maxIncome),
+      );
+    }
+
+    const total = filtered.length;
+    const paginated = filtered.slice(skip, skip + limit);
+
+    return {
+      data: paginated,
+      total,
+      page,
+      limit,
+    };
+  }
+
   async update(id: string, updateCitizenDto: UpdateCitizenDto) {
     const citizen = await this.prisma.citizen.findUnique({
       where: { id },

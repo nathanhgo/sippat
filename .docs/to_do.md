@@ -28,24 +28,25 @@
 
 
 
-## Fase 2: Autenticação e Módulo de Cidadãos (CRUD)
+## Fase 2: Autenticação e Módulo de Cidadãos (CRUD) ✅ (concluída)
 
-- [ ] Escrever testes do módulo de Auth (login, hashing, guards de perfil) — ver `tests.md` §2.1.
-- [ ] Implementar Módulo de Auth no NestJS (JWT, Login de Funcionários) até os testes passarem.
-- [ ] Escrever testes de validação de CPF, NIS, CEP e dos novos campos obrigatórios (Gênero, Raça/Cor, Estado Civil) — RNF-002, RF-001, ver `tests.md` §2.2.
-- [ ] Criar rotas do CRUD de Cidadãos (`RF-001`, `RF-002`, `RF-003`) com validações estritas até os testes passarem.
-- [ ] Escrever testes de criptografia dos campos sensíveis de `social_profiles` (RNF-003).
-- [ ] Implementar criptografia de campos sensíveis até os testes passarem.
-- [ ] Criar formulários de cadastro e edição fluida no Angular (`RNF-004`), com testes unitários de validação reativa.
+- [x] Escrever testes do módulo de Auth (login, hashing, guards de perfil) — ver `tests.md` §2.1.
+- [x] Implementar Módulo de Auth no NestJS (JWT, Login de Funcionários) até os testes passarem.
+- [x] Escrever testes de validação de CPF, NIS, CEP e dos novos campos obrigatórios (Gênero, Raça/Cor, Estado Civil) — RNF-002, RF-001, ver `tests.md` §2.2.
+- [x] Criar rotas do CRUD de Cidadãos (`RF-001`, `RF-002`, `RF-003`) com validações estritas até os testes passarem.
+- [x] Escrever testes de criptografia dos campos sensíveis de `social_profiles` (RNF-003).
+- [x] Implementar criptografia de campos sensíveis até os testes passarem.
+- [x] Criar endpoint de registro de usuários (backend) e tela de cadastro de usuário (frontend) para testes e setup local.
+- [x] Criar formulários de cadastro e edição fluida de cidadãos no Angular (`RNF-004`), com testes unitários de validação reativa.
 
 
 
 ## Fase 3: Busca Avançada e Reutilização de Cadastro
 
-- [ ] Escrever testes do endpoint de Busca Avançada (filtros combinados, paginação, ordenação padrão) — ver `tests.md` §2.3.
-- [ ] Criar endpoint de Busca Avançada combinada com paginação (`RF-005`) até os testes passarem.
-- [ ] Otimizar queries com índices no PostgreSQL e validar com teste de performance (`RNF-001`, `tests.md` §2.3).
-- [ ] Criar tela de Busca com Filtros Avançados e Tabela Dinâmica no Angular, com testes unitários e E2E.
+- [x] Escrever testes do endpoint de Busca Avançada (filtros combinados, paginação, ordenação padrão) — ver `tests.md` §2.3.
+- [x] Criar endpoint de Busca Avançada combinada com paginação (`RF-005`) até os testes passarem.
+- [x] Otimizar queries com índices no PostgreSQL e validar com teste de performance (`RNF-001`, `tests.md` §2.3).
+- [x] Criar tela de Busca com Filtros Avançados e Tabela Dinâmica no Angular, com testes unitários e E2E.
 - [ ] Escrever testes do fluxo de reutilização de cadastro por CPF (sugerir/aceitar/recusar/editar) — RF-006, ver `tests.md` §2.4.
 - [ ] Implementar sugestão automática de cadastro existente ao iniciar atendimento até os testes passarem.
 

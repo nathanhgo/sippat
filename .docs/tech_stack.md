@@ -8,7 +8,7 @@
 - **Validação:** `class-validator` e `class-transformer`
 
 ## Frontend
-- **Framework:** Angular 21 (versão estável mais recente disponível — ver nota abaixo)
+- **Framework:** Angular 22 (migrado do Angular 21 devido ao novo lançamento estável)
 - **Estilização:** TailwindCSS v4 + Angular Material (Angular Material será adicionado quando os primeiros componentes de formulário/tabela forem construídos, Fase 2)
 
 ## Banco de Dados
@@ -32,7 +32,7 @@
 
 ## Decisões Estruturais tomadas na Fase 1 (Setup)
 
-- **Angular 21, não 24:** na data de implementação (ago/2026) a versão estável mais recente do Angular disponível no npm era a 21.x — a versão 24 citada originalmente neste documento ainda não existe. Atualizado para refletir a realidade; o projeto deve ser mantido atualizado para novas versões estáveis conforme lançadas.
+- **Angular 22, não 24:** o projeto foi inicializado na versão 21 (estável na época), mas atualizado com sucesso para o Angular 22 após o novo lançamento estável no npm, resolvendo as dependências do compilador com o TypeScript 6.x.
 - **Prisma ORM v6, não v7:** o Prisma 7 (mais recente no registro) exige *driver adapters* obrigatórios (`@prisma/adapter-pg`), um novo arquivo `prisma.config.ts` e gera um client **ESM-only**, o que conflita diretamente com a base CommonJS padrão do NestJS (gerada pelo Nest CLI) e adiciona complexidade significativa de configuração. Optou-se pela v6 (estável, amplamente documentada, mesma API `schema.prisma` com `datasource.url` direto) por ser mais simples e compatível com o restante do stack — mais alinhado à decisão da equipe de manter o projeto simples (mesmo raciocínio usado para descartar o ESLint). Reavaliar a migração para v7 quando o ecossistema Nest+Prisma7 estiver mais maduro/documentado.
 - **Vitest no frontend:** o Angular 21 já inclui suporte nativo a Vitest via `@angular/build:unit-test` (builder oficial do CLI), então não foi necessária nenhuma configuração manual — apenas a ausência do Karma/Jasmine, que nunca chegou a ser instalado.
 - **Health check (`GET /api/health`):** endpoint criado para verificar rapidamente, via Swagger ou pelo próprio frontend, se a API e a conexão com o banco estão funcionando. Não estava nos requisitos originais, mas é uma prática recomendada de infraestrutura.

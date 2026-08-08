@@ -2,7 +2,9 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -48,5 +50,26 @@ export class AuthService {
 
   async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
+  }
+
+  async register(registerDto: RegisterDto) {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: registerDto.email },
+    });
+
+    if (existing) {
+      throw new BadRequestException('E-mail já cadastrado');
+    }
+
+    const passwordHash = await this.hashPassword(registerDto.password);
+
+    return this.prisma.user.create({
+      data: {
+        name: registerDto.name,
+        email: registerDto.email,
+        passwordHash,
+        role: registerDto.role,
+      },
+    });
   }
 }
