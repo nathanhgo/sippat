@@ -41,14 +41,14 @@
 
 
 
-## Fase 3: Busca Avançada e Reutilização de Cadastro
+## Fase 3: Busca Avançada e Reutilização de Cadastro ✅ (concluída)
 
 - [x] Escrever testes do endpoint de Busca Avançada (filtros combinados, paginação, ordenação padrão) — ver `tests.md` §2.3.
 - [x] Criar endpoint de Busca Avançada combinada com paginação (`RF-005`) até os testes passarem.
 - [x] Otimizar queries com índices no PostgreSQL e validar com teste de performance (`RNF-001`, `tests.md` §2.3).
 - [x] Criar tela de Busca com Filtros Avançados e Tabela Dinâmica no Angular, com testes unitários e E2E.
-- [ ] Escrever testes do fluxo de reutilização de cadastro por CPF (sugerir/aceitar/recusar/editar) — RF-006, ver `tests.md` §2.4.
-- [ ] Implementar sugestão automática de cadastro existente ao iniciar atendimento até os testes passarem.
+- [x] Escrever testes do fluxo de reutilização de cadastro por CPF (sugerir/aceitar/recusar/editar) — RF-006, ver `tests.md` §2.4.
+- [x] Implementar sugestão automática de cadastro existente ao iniciar atendimento até os testes passarem.
 
 
 

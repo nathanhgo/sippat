@@ -85,6 +85,16 @@
 - Integrado validações reativas customizadas de CPF (dígitos verificadores), NIS (algoritmo PIS/NIS) e CEP no formulário do cidadão.
 - Adicionados os testes unitários correspondentes no frontend, totalizando **34 testes passando com 100% de sucesso** e build de produção validado.
 
+## 2026-08-08 — Conclusão da Fase 3: Atendimentos e Sugestão por CPF
+- Criado o módulo de Atendimentos (`AttendancesModule`) no backend NestJS, incluindo DTOs de validação do `serviceType` via class-validator.
+- Adicionados testes unitários no backend para o fluxo de registro de atendimentos e listagem histórica por cidadão.
+- Criado o serviço `AttendancesService` no frontend Angular para consumo da API de atendimentos.
+- Criada a tela de Atendimento (`AttendanceFormComponent`) no frontend com fluxo de busca automática por CPF (sugestão/carregamento automático de cadastros de cidadãos existentes).
+- Adicionados testes unitários no frontend para o formulário de atendimentos e suas ações de aceitar/rejeitar sugestão.
+- Atualizadas as tabelas de listagem de cidadãos com busca avançada combinada por múltiplos filtros (bairro, escolaridade, PcD, faixa de renda).
+- Todos os testes integrados estão passando (41 no backend e 42 no frontend) e builds validados com sucesso.
+
+
 
 
 
