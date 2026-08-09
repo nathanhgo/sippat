@@ -52,12 +52,12 @@
 
 
 
-## Fase 4: Atendimentos e Importação de Excel
+## Fase 4: Atendimentos e Importação de Excel ✅ (concluída)
 
-- [ ] Escrever testes do módulo de Atendimentos, incluindo o ENUM fechado de `service_type` (`RF-004`) — ver `tests.md` §2.4.
-- [ ] Criar módulo de Histórico de Atendimentos até os testes passarem.
-- [ ] Escrever testes do serviço de importação de Excel, incluindo o tratamento de CPF duplicado (sobrescrever/ignorar, linha a linha ou em massa) — ver `tests.md` §2.5.
-- [ ] Criar serviço de importação de planilhas Excel (`RF-007`) com a interface de escolha de tratamento de duplicados até os testes passarem.
+- [x] Escrever testes do módulo de Atendimentos, incluindo o ENUM fechado de `service_type` (`RF-004`) — ver `tests.md` §2.4.
+- [x] Criar módulo de Histórico de Atendimentos até os testes passarem.
+- [x] Escrever testes do serviço de importação de Excel, incluindo o tratamento de CPF duplicado (sobrescrever/ignorar, linha a linha ou em massa) — ver `tests.md` §2.5.
+- [x] Criar serviço de importação de planilhas Excel (`RF-007`) com a interface de escolha de tratamento de duplicados até os testes passarem.
 
 
 

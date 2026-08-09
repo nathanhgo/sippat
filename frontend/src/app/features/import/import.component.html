@@ -1,0 +1,261 @@
+<div class="min-h-screen bg-slate-50 p-6 font-sans">
+  <div class="max-w-4xl mx-auto flex flex-col gap-6 animate-fade-in">
+    
+    <!-- Top Header -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">Importação de Planilha Excel</h1>
+        <p class="text-sm text-slate-500 mt-1">Importe cadastros de cidadãos e históricos a partir de planilhas Excel</p>
+      </div>
+      <button mat-stroked-button routerLink="/citizens">
+        <mat-icon class="mr-1">arrow_back</mat-icon>
+        <span>Voltar para Lista</span>
+      </button>
+    </div>
+
+    <!-- MAIN LOADING SPINNER -->
+    @if (isLoading()) {
+      <mat-card class="bg-white p-12 shadow-sm border border-slate-200 rounded-lg flex flex-col items-center justify-center gap-4">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p class="text-slate-600 font-medium">Processando planilha... Aguarde</p>
+      </mat-card>
+    } @else {
+
+      <!-- STEP 1: SELECT FILE -->
+      @if (step() === 'select_file') {
+        <mat-card class="bg-white p-8 shadow-sm border border-slate-200 rounded-lg">
+          <h2 class="text-lg font-semibold text-slate-800 mb-2">Selecione o arquivo da planilha</h2>
+          <p class="text-sm text-slate-500 mb-6">A planilha deve conter as colunas de CPF, Nome, Data de Nascimento, Gênero, Raça/Cor e Estado Civil.</p>
+
+          <div class="border-2 border-dashed border-slate-300 rounded-lg p-10 flex flex-col items-center justify-center gap-4 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer relative">
+            <input type="file" (change)="onFileSelected($event)" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer" />
+            <mat-icon class="scale-[2] text-blue-800 mb-2">cloud_upload</mat-icon>
+            
+            @if (selectedFile()) {
+              <div class="text-center">
+                <p class="text-sm font-semibold text-slate-800">{{ selectedFile()?.name }}</p>
+                <p class="text-xs text-slate-400 mt-1">{{ (selectedFile()?.size || 0) / 1024 | number:'1.0-2' }} KB</p>
+              </div>
+            } @else {
+              <div class="text-center">
+                <p class="text-sm font-medium text-slate-700">Arraste e solte o arquivo aqui ou clique para procurar</p>
+                <p class="text-xs text-slate-400 mt-1">Suporta arquivos .xlsx e .xls</p>
+              </div>
+            }
+          </div>
+
+          <div class="flex justify-end mt-6">
+            <button mat-flat-button color="primary" [disabled]="!selectedFile()" (click)="uploadAndPreview()">
+              <mat-icon class="mr-1">analytics</mat-icon>
+              <span>Analisar Planilha</span>
+            </button>
+          </div>
+        </mat-card>
+      }
+
+      <!-- STEP 2: PREVIEW -->
+      @if (step() === 'preview' && previewData()) {
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
+            <div class="p-3 bg-blue-100 text-blue-800 rounded-full">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-semibold uppercase">Total</p>
+              <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.total }}</h3>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
+            <div class="p-3 bg-green-100 text-green-800 rounded-full">
+              <mat-icon>person_add</mat-icon>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-semibold uppercase">Novos</p>
+              <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.valid }}</h3>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
+            <div class="p-3 bg-yellow-100 text-yellow-800 rounded-full">
+              <mat-icon>people</mat-icon>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-semibold uppercase">Duplicados</p>
+              <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.duplicates }}</h3>
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
+            <div class="p-3 bg-red-100 text-red-800 rounded-full">
+              <mat-icon>error_outline</mat-icon>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-semibold uppercase">Com Erro</p>
+              <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.invalid }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duplicate Resolution Strategy selection -->
+        @if (previewData().summary.duplicates > 0) {
+          <mat-card class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
+            <h2 class="text-base font-semibold text-slate-800 mb-2">Tratamento de CPFs Duplicados</h2>
+            <p class="text-sm text-slate-500 mb-4">Escolha a ação padrão para os cidadãos cujos CPFs já estão cadastrados no sistema.</p>
+
+            <mat-radio-group [ngModel]="duplicateStrategy()" (ngModelChange)="duplicateStrategy.set($event)" class="flex flex-col gap-3">
+              <mat-radio-button value="ignore_all" class="text-slate-700">
+                <span class="font-medium">Ignorar todos</span> — Não atualiza os cadastros existentes.
+              </mat-radio-button>
+              <mat-radio-button value="overwrite_all" class="text-slate-700">
+                <span class="font-medium">Sobrescrever todos</span> — Atualiza os dados cadastrais no sistema com os dados da planilha.
+              </mat-radio-button>
+              <mat-radio-button value="individual" class="text-slate-700">
+                <span class="font-medium">Decidir linha a linha</span> — Escolha individualmente na tabela abaixo.
+              </mat-radio-button>
+            </mat-radio-group>
+
+            <!-- Individual decisions table -->
+            @if (duplicateStrategy() === 'individual') {
+              <div class="mt-6 border border-slate-200 rounded-lg overflow-hidden">
+                <table class="w-full text-sm">
+                  <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th class="py-2.5 px-4 text-left text-slate-700 font-semibold">CPF</th>
+                      <th class="py-2.5 px-4 text-left text-slate-700 font-semibold">Nome</th>
+                      <th class="py-2.5 px-4 text-center text-slate-700 font-semibold w-64">Decisão</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    @for (row of getDuplicateRows(); track row.cpf) {
+                      <tr>
+                        <td class="py-2.5 px-4 text-slate-600">{{ row.cpf }}</td>
+                        <td class="py-2.5 px-4 text-slate-800 font-medium">{{ row.fullName }}</td>
+                        <td class="py-2.5 px-4 text-center">
+                          <div class="inline-flex rounded-md shadow-xs">
+                            <button 
+                              type="button" 
+                              (click)="setIndividualDecision(row.cpf, 'ignore')"
+                              [class]="individualDecisions[row.cpf] === 'ignore' ? 'bg-slate-200 text-slate-800 px-3 py-1 text-xs font-semibold rounded-l-md border border-slate-300' : 'bg-white text-slate-500 px-3 py-1 text-xs border border-slate-200 hover:bg-slate-50 rounded-l-md'"
+                            >
+                              Ignorar
+                            </button>
+                            <button 
+                              type="button"
+                              (click)="setIndividualDecision(row.cpf, 'overwrite')"
+                              [class]="individualDecisions[row.cpf] === 'overwrite' ? 'bg-blue-600 text-white px-3 py-1 text-xs font-semibold rounded-r-md border border-blue-600' : 'bg-white text-slate-500 px-3 py-1 text-xs border border-slate-200 hover:bg-slate-50 rounded-r-md'"
+                            >
+                              Sobrescrever
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </mat-card>
+        }
+
+        <!-- Validation Errors list -->
+        @if (previewData().summary.invalid > 0) {
+          <mat-card class="bg-red-50/50 p-6 shadow-sm border border-red-200 rounded-lg">
+            <div class="flex items-center gap-2 text-red-800 mb-2">
+              <mat-icon>warning</mat-icon>
+              <h2 class="text-base font-semibold">Linhas com Erros de Validação (Serão Ignoradas)</h2>
+            </div>
+            <p class="text-sm text-red-600 mb-4">Estas linhas possuem inconsistências e não poderão ser importadas. Corrija na planilha se necessário.</p>
+
+            <div class="max-h-60 overflow-y-auto border border-red-200 rounded-md bg-white">
+              <table class="w-full text-xs">
+                <thead class="bg-red-50 border-b border-red-100">
+                  <tr>
+                    <th class="py-2 px-3 text-left text-red-800 font-semibold">Linha / CPF</th>
+                    <th class="py-2 px-3 text-left text-red-800 font-semibold">Nome</th>
+                    <th class="py-2 px-3 text-left text-red-800 font-semibold">Erros Encontrados</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-red-50">
+                  @for (row of getErrorRows(); track $index) {
+                    <tr>
+                      <td class="py-2 px-3 text-slate-600 font-mono">{{ row.cpf || 'Sem CPF' }}</td>
+                      <td class="py-2 px-3 text-slate-800 font-medium">{{ row.fullName || 'Sem Nome' }}</td>
+                      <td class="py-2 px-3">
+                        <ul class="list-disc pl-4 text-red-600 flex flex-col gap-0.5">
+                          @for (err of row.errors; track err) {
+                            <li>{{ err }}</li>
+                          }
+                        </ul>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </mat-card>
+        }
+
+        <!-- Action buttons -->
+        <div class="flex items-center justify-between mt-4">
+          <button mat-stroked-button (click)="reset()">
+            <mat-icon class="mr-1">refresh</mat-icon>
+            <span>Escolher outro arquivo</span>
+          </button>
+          
+          <button mat-flat-button color="primary" (click)="confirmImport()">
+            <mat-icon class="mr-1">done_all</mat-icon>
+            <span>Confirmar e Importar</span>
+          </button>
+        </div>
+      }
+
+      <!-- STEP 3: RESULT REPORT -->
+      @if (step() === 'result' && executionResult()) {
+        <mat-card class="bg-white p-8 shadow-sm border border-slate-200 rounded-lg flex flex-col items-center gap-6">
+          <div class="h-16 w-16 bg-green-100 text-green-700 rounded-full flex items-center justify-center">
+            <mat-icon class="scale-[2]">check_circle</mat-icon>
+          </div>
+
+          <div class="text-center">
+            <h2 class="text-xl font-bold text-slate-800">Importação Concluída com Sucesso!</h2>
+            <p class="text-sm text-slate-500 mt-1">Os dados válidos foram importados para o banco de dados conforme as estratégias escolhidas.</p>
+          </div>
+
+          <!-- Report summary -->
+          <div class="w-full max-w-md bg-slate-50 rounded-lg p-5 border border-slate-200 flex flex-col gap-3">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+              <span class="text-sm text-slate-600 font-medium">Novos cadastrados:</span>
+              <span class="text-base font-bold text-slate-800">{{ executionResult().imported }}</span>
+            </div>
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+              <span class="text-sm text-slate-600 font-medium">Cadastros atualizados/sobrescritos:</span>
+              <span class="text-base font-bold text-slate-800">{{ executionResult().overwritten }}</span>
+            </div>
+            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+              <span class="text-sm text-slate-600 font-medium">Cadastros ignorados (duplicados):</span>
+              <span class="text-base font-bold text-slate-800">{{ executionResult().ignored }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-red-600 font-medium">Linhas com erro:</span>
+              <span class="text-base font-bold text-red-700">{{ executionResult().errors }}</span>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mt-4">
+            <button mat-stroked-button (click)="reset()">
+              <mat-icon class="mr-1">upload_file</mat-icon>
+              <span>Nova Importação</span>
+            </button>
+            <button mat-flat-button color="primary" routerLink="/citizens">
+              <mat-icon class="mr-1">people</mat-icon>
+              <span>Ver Cidadãos</span>
+            </button>
+          </div>
+        </mat-card>
+      }
+
+    }
+  </div>
+</div>

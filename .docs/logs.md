@@ -94,6 +94,18 @@
 - Atualizadas as tabelas de listagem de cidadãos com busca avançada combinada por múltiplos filtros (bairro, escolaridade, PcD, faixa de renda).
 - Todos os testes integrados estão passando (41 no backend e 42 no frontend) e builds validados com sucesso.
 
+## 2026-08-08 — Conclusão da Fase 4: Atendimentos e Importação de Excel
+- Criado o módulo de Importação (`ImportModule`) no backend NestJS, incluindo `ImportController` e `ImportService`.
+- Implementado endpoint `POST /api/import/upload` para receber arquivos Excel, validar dados de cidadãos e prever novos, duplicados e erros de validação.
+- Implementado endpoint `POST /api/import/confirm` com transação Prisma para aplicar estratégias de importação em duplicados (sobrescrever tudo, ignorar tudo ou decisões individuais linha a linha).
+- Escritos testes unitários em `import.service.spec.ts` e `import.controller.spec.ts` cobrindo as regras de validação e tratamento de CPF duplicado.
+- Criado o `ImportService` no frontend Angular para consumo dos novos endpoints da API.
+- Criada a tela de Importação (`ImportComponent`) no frontend com interface de upload, painel de preview/resumo (Total, Novos, Duplicados, Erros), seletor de decisões para duplicados (linha a linha ou em massa) e relatório de conclusão.
+- Adicionado `authInterceptor` no frontend para anexar automaticamente o token JWT nas requisições da API.
+- Adicionados links rápidos na tela de listagem de cidadãos para as páginas de Importar Planilha e Registrar Atendimento.
+- Escritos testes unitários no frontend em `import.component.spec.ts` e `import.service.spec.ts`.
+- Todos os testes unitários e de integração estão passando (48 no backend, 49 no frontend).
+
 
 
 
