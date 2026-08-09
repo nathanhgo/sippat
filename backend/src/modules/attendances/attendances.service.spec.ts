@@ -13,6 +13,7 @@ describe('AttendancesService', () => {
     attendance: {
       create: vi.fn(),
       findMany: vi.fn(),
+      count: vi.fn(),
     },
     citizen: {
       findUnique: vi.fn(),
@@ -93,6 +94,22 @@ describe('AttendancesService', () => {
         where: { citizenId },
         orderBy: { createdAt: 'desc' },
       });
+    });
+  });
+
+  describe('findAll', () => {
+    it('deve retornar a lista paginada de todos os atendimentos', async () => {
+      const mockList = [
+        { id: '1', citizenId: 'c1', serviceType: ServiceType.ORIENTACAO, createdAt: new Date() },
+      ];
+      mockPrismaService.attendance.findMany.mockResolvedValue(mockList);
+      mockPrismaService.attendance.count.mockResolvedValue(1);
+
+      const result = await service.findAll({ page: 1, limit: 10 });
+
+      expect(result.data).toEqual(mockList);
+      expect(result.total).toBe(1);
+      expect(mockPrismaService.attendance.findMany).toHaveBeenCalled();
     });
   });
 });

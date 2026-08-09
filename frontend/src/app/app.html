@@ -1,33 +1,75 @@
 @if (isAuthPage()) {
   <router-outlet />
 } @else {
-  <div class="min-h-screen bg-slate-100 flex flex-col items-center justify-center gap-6 p-8">
-    <div class="bg-white shadow-md rounded-lg p-8 max-w-md w-full border-t-4 border-blue-800">
-      <h1 class="text-2xl font-bold text-blue-900">{{ title() }}</h1>
-      <p class="text-slate-600 mt-1">Sistema de Informação do PAT Jacareí</p>
+  <div class="min-h-screen bg-slate-50 flex flex-col">
+    <!-- Professional Header Navbar -->
+    <header class="bg-gradient-to-r from-blue-950 to-slate-900 text-white shadow-md">
+      <div class="max-w-6xl mx-auto px-6 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-2.5 cursor-pointer" routerLink="/citizens">
+          <div class="bg-blue-600 p-2 rounded-lg flex items-center justify-center shadow-inner">
+            <mat-icon class="text-white scale-110">business_center</mat-icon>
+          </div>
+          <div>
+            <h1 class="text-lg font-extrabold tracking-tight leading-none text-white">SIP<span class="text-blue-400">PAT</span></h1>
+            <p class="text-[10px] text-slate-300 tracking-wide mt-0.5 uppercase font-medium">PAT Jacareí</p>
+          </div>
+        </div>
 
-      <div class="mt-6 flex items-center gap-3">
-        <span
-          class="h-3 w-3 rounded-full"
-          [class.bg-green-500]="connectionStatus() === 'ok'"
-          [class.bg-yellow-400]="connectionStatus() === 'checking'"
-          [class.bg-red-500]="connectionStatus() === 'error'"
-        ></span>
+        <!-- Navigation Links -->
+        <nav class="flex items-center gap-1.5 md:gap-4 font-medium text-sm">
+          <a routerLink="/citizens" routerLinkActive="bg-blue-900/50 text-blue-300 font-semibold" [routerLinkActiveOptions]="{exact: true}" class="px-3.5 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-1.5">
+            <mat-icon class="scale-90">people</mat-icon>
+            <span>Cidadãos</span>
+          </a>
+          <a routerLink="/attendances" routerLinkActive="bg-blue-900/50 text-blue-300 font-semibold" class="px-3.5 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-1.5">
+            <mat-icon class="scale-90">assignment</mat-icon>
+            <span>Atendimentos</span>
+          </a>
+          <a routerLink="/import" routerLinkActive="bg-blue-900/50 text-blue-300 font-semibold" class="px-3.5 py-2 rounded-md hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-1.5">
+            <mat-icon class="scale-90">upload_file</mat-icon>
+            <span>Importação</span>
+          </a>
+        </nav>
 
-        @switch (connectionStatus()) {
-          @case ('checking') {
-            <span class="text-slate-600 text-sm">Verificando conexão com a API…</span>
+        <!-- Right Side: User Profile & API Health Indicator -->
+        <div class="flex items-center gap-4 text-sm">
+          <!-- Subtle Connection Status -->
+          <div class="flex items-center gap-2 bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700/50">
+            <span
+              class="h-2 w-2 rounded-full animate-pulse"
+              [class.bg-green-500]="connectionStatus() === 'ok'"
+              [class.bg-yellow-400]="connectionStatus() === 'checking'"
+              [class.bg-red-500]="connectionStatus() === 'error'"
+            ></span>
+            <span class="text-xs text-slate-300 font-medium">
+              @switch (connectionStatus()) {
+                @case ('checking') { Conectando... }
+                @case ('ok') { Online }
+                @case ('error') { Sem Conexão }
+              }
+            </span>
+          </div>
+
+          <!-- User Profile info and Logout -->
+          @if (authService.currentUser()) {
+            <div class="flex items-center gap-3">
+              <div class="hidden lg:flex flex-col text-right">
+                <span class="text-xs text-slate-200 font-semibold leading-none">{{ authService.currentUser()?.email }}</span>
+                <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider mt-1">{{ authService.currentUser()?.role }}</span>
+              </div>
+              <button mat-icon-button (click)="logout()" title="Sair do sistema" class="text-slate-300 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+                <mat-icon>logout</mat-icon>
+              </button>
+            </div>
           }
-          @case ('ok') {
-            <span class="text-green-700 text-sm font-medium">API e banco de dados conectados</span>
-          }
-          @case ('error') {
-            <span class="text-red-700 text-sm font-medium">Não foi possível conectar à API</span>
-          }
-        }
+        </div>
       </div>
-    </div>
+    </header>
 
-    <router-outlet />
+    <!-- Main Content Area -->
+    <main class="flex-1">
+      <router-outlet />
+    </main>
   </div>
 }

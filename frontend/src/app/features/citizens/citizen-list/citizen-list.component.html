@@ -2,25 +2,15 @@
   <div class="max-w-6xl mx-auto flex flex-col gap-6">
     
     <!-- Top Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-slate-800">Cidadãos Cadastrados</h1>
         <p class="text-sm text-slate-500 mt-1">Consulte, cadastre e gerencie os cidadãos atendidos pelo PAT Jacareí</p>
       </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <button mat-stroked-button color="accent" routerLink="/attendances/new">
-          <mat-icon class="mr-1">assignment</mat-icon>
-          <span>Registrar Atendimento</span>
-        </button>
-        <button mat-stroked-button color="primary" routerLink="/import">
-          <mat-icon class="mr-1">upload_file</mat-icon>
-          <span>Importar Planilha</span>
-        </button>
-        <button mat-flat-button color="primary" routerLink="/citizens/new">
-          <mat-icon class="mr-1">add</mat-icon>
-          <span>Novo Cadastro</span>
-        </button>
-      </div>
+      <button mat-flat-button color="primary" routerLink="/citizens/new">
+        <mat-icon class="mr-1">add</mat-icon>
+        <span>Novo Cadastro</span>
+      </button>
     </div>
 
     <!-- Search bar and Filters Toggle -->

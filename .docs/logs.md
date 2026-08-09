@@ -118,6 +118,15 @@
 - Rodados testes de segurança e audit (`npm audit`) resolvendo dependências vulneráveis corrigíveis.
 - Todos os testes unitários e de integração estão passando (54 no backend, 49 no frontend).
 
+## 2026-08-08 — Tela de Histórico Geral de Atendimentos
+- Implementado endpoint `GET /api/attendances` no backend NestJS para obter a listagem de todos os atendimentos com paginação e joins com dados de cidadão e operador.
+- Adicionado método `findAll` em `AttendancesService` (frontend Angular) para consumo do novo endpoint.
+- Criada a página de listagem (`AttendanceListComponent`) no frontend contendo a tabela de atendimentos históricos com paginação.
+- Atualizado o cabeçalho de navegação (`App` component navbar) para redirecionar o botão de "Atendimentos" para a listagem histórica `/attendances`.
+- Adicionado botão "Registrar Atendimento" na listagem de atendimentos apontando para o formulário `/attendances/new`.
+- Atualizados os testes unitários do backend e do frontend, totalizando **56 testes no backend e 52 no frontend**, todos passando com sucesso.
+
+
 
 
 

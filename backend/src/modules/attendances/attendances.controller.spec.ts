@@ -11,6 +11,7 @@ describe('AttendancesController', () => {
   const mockAttendancesService = {
     create: vi.fn(),
     findByCitizen: vi.fn(),
+    findAll: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -45,6 +46,20 @@ describe('AttendancesController', () => {
 
       expect(result).toBe(mockResponse);
       expect(service.create).toHaveBeenCalledWith(dto, 'user-uuid');
+    });
+  });
+
+  describe('findAll', () => {
+    it('deve chamar service.findAll com os parâmetros da query', async () => {
+      const query = { page: 1, limit: 10 };
+      const mockResult = { data: [], total: 0, page: 1, limit: 10 };
+
+      mockAttendancesService.findAll.mockResolvedValue(mockResult);
+
+      const result = await controller.findAll(query);
+
+      expect(result).toBe(mockResult);
+      expect(service.findAll).toHaveBeenCalledWith(query);
     });
   });
 

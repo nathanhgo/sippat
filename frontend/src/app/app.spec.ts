@@ -6,6 +6,9 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { environment } from '../environments/environment';
+import { provideRouter } from '@angular/router';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 
 describe('App', () => {
   let httpMock: HttpTestingController;
@@ -13,7 +16,12 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideAnimations(),
+      ],
     }).compileComponents();
 
     httpMock = TestBed.inject(HttpTestingController);
@@ -47,7 +55,7 @@ describe('App', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('API e banco de dados conectados');
+    expect(compiled.textContent).toContain('Online');
   });
 
   it('deve exibir status de erro quando a API falha', () => {
@@ -59,6 +67,6 @@ describe('App', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Não foi possível conectar à API');
+    expect(compiled.textContent).toContain('Sem Conexão');
   });
 });

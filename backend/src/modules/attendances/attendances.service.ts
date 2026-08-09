@@ -39,4 +39,41 @@ export class AttendancesService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async findAll(query: { page?: number; limit?: number }) {
+    const page = Number(query.page ?? 1);
+    const limit = Number(query.limit ?? 10);
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.attendance.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          citizen: {
+            select: {
+              id: true,
+              fullName: true,
+              cpf: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      }),
+      this.prisma.attendance.count(),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+    };
+  }
 }

@@ -55,4 +55,16 @@ describe('AttendancesService', () => {
     expect(req.request.method).toBe('GET');
     req.flush(mockList);
   });
+
+  it('deve fazer GET para obter a lista paginada de todos os atendimentos', () => {
+    const mockResponse = { data: [{ id: '1', serviceType: 'ORIENTACAO' }], total: 1 };
+
+    service.findAll({ page: 1, limit: 10 }).subscribe((res) => {
+      expect(res).toEqual(mockResponse);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/attendances?page=1&limit=10`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
 });

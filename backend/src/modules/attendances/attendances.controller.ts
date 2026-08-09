@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Request, UseGuards, Query } from '@nestjs/common';
 import { AttendancesService } from './attendances.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -13,6 +13,11 @@ export class AttendancesController {
   async create(@Body() createAttendanceDto: CreateAttendanceDto, @Request() req: any) {
     const userId = req.user.sub;
     return this.attendancesService.create(createAttendanceDto, userId);
+  }
+
+  @Get()
+  async findAll(@Query() query: any) {
+    return this.attendancesService.findAll(query);
   }
 
   @Get('citizen/:citizenId')

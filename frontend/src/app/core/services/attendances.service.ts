@@ -16,4 +16,10 @@ export class AttendancesService {
   findByCitizen(citizenId: string): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/attendances/citizen/${citizenId}`);
   }
+
+  findAll(params?: { page?: number; limit?: number }): Observable<any> {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 10;
+    return this.http.get<any>(`${environment.apiUrl}/attendances?page=${page}&limit=${limit}`);
+  }
 }
