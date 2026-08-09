@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+.dialog-container {
+  max-height: 85vh;
+  box-sizing: border-box;
+}

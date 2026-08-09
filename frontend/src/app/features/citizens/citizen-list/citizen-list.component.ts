@@ -13,6 +13,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CitizenDetailsModalComponent } from '../../../shared/components/citizen-details-modal/citizen-details-modal.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-citizen-list',
@@ -30,6 +33,7 @@ import { MatSelectModule } from '@angular/material/select';
     MatCardModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    MatDialogModule,
   ],
   templateUrl: './citizen-list.component.html',
   styleUrls: ['./citizen-list.component.css']
@@ -54,8 +58,18 @@ export class CitizenListComponent implements OnInit {
 
   constructor(
     private readonly citizensService: CitizensService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly dialog: MatDialog
   ) {}
+
+  viewDetails(id: string) {
+    this.dialog.open(CitizenDetailsModalComponent, {
+      data: { citizenId: id },
+      width: '850px',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container'
+    });
+  }
 
   ngOnInit(): void {
     this.loadCitizens();
@@ -125,13 +139,37 @@ export class CitizenListComponent implements OnInit {
     this.router.navigate(['/citizens/edit', id]);
   }
 
-  onDelete(id: string) {
-    if (confirm('Tem certeza que deseja excluir este cadastro? Esta ação não pode ser desfeita.')) {
-      this.citizensService.delete(id).subscribe({
-        next: () => {
-          this.loadCitizens();
-        }
-      });
+  onDelete(id: string, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
     }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '450px',
+      data: {
+        title: 'Excluir Cidadão',
+        message: 'Tem certeza que deseja excluir este cadastro? Esta ação é permanente e removerá todos os dados vinculados.',
+        confirmText: 'Excluir Definitivamente',
+        cancelText: 'Cancelar'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.isLoading.set(true);
+        this.citizensService.delete(id).subscribe({
+          next: () => {
+            this.loadCitizens();
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            console.error('Erro ao excluir cidadão:', err);
+            const errorMessage = err?.error?.message || err?.message || 'Erro desconhecido';
+            alert(`Não foi possível excluir o cidadão. (${errorMessage})`);
+          }
+        });
+      }
+    });
   }
 }

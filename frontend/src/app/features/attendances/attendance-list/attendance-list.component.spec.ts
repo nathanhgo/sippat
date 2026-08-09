@@ -7,6 +7,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { vi, describe, beforeEach, it, expect } from 'vitest';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('AttendanceListComponent', () => {
   let component: AttendanceListComponent;
@@ -31,6 +32,10 @@ describe('AttendanceListComponent', () => {
 
     fixture = TestBed.createComponent(AttendanceListComponent);
     component = fixture.componentInstance;
+    
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    vi.spyOn(dialog, 'open').mockReturnValue({} as any);
+
     fixture.detectChanges();
   });
 
@@ -52,5 +57,11 @@ describe('AttendanceListComponent', () => {
     expect(attendancesServiceMock.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
     expect(component.attendances()).toEqual(mockResponse.data);
     expect(component.totalAttendances()).toBe(1);
+  });
+
+  it('deve abrir o modal de detalhes do cidadão ao chamar viewCitizenDetails', () => {
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    component.viewCitizenDetails('1');
+    expect(dialog.open).toHaveBeenCalled();
   });
 });

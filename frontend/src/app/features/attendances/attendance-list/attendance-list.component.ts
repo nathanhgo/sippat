@@ -8,6 +8,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AttendancesService } from '../../../core/services/attendances.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CitizenDetailsModalComponent } from '../../../shared/components/citizen-details-modal/citizen-details-modal.component';
 
 @Component({
   selector: 'app-attendance-list',
@@ -20,13 +22,24 @@ import { AttendancesService } from '../../../core/services/attendances.service';
     MatIconModule,
     MatTableModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatDialogModule,
   ],
   templateUrl: './attendance-list.component.html',
   styleUrl: './attendance-list.component.css'
 })
 export class AttendanceListComponent implements OnInit {
   private readonly attendancesService = inject(AttendancesService);
+  private readonly dialog = inject(MatDialog);
+
+  viewCitizenDetails(id: string) {
+    this.dialog.open(CitizenDetailsModalComponent, {
+      data: { citizenId: id },
+      width: '850px',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container'
+    });
+  }
 
   attendances = signal<any[]>([]);
   totalAttendances = signal<number>(0);

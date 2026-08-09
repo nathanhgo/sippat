@@ -5,6 +5,7 @@ import { CitizenListComponent } from './citizen-list.component';
 import { CitizensService } from '../../../core/services/citizens.service';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('CitizenListComponent', () => {
   let component: CitizenListComponent;
@@ -39,6 +40,12 @@ describe('CitizenListComponent', () => {
 
     fixture = TestBed.createComponent(CitizenListComponent);
     component = fixture.componentInstance;
+    
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    vi.spyOn(dialog, 'open').mockReturnValue({
+      afterClosed: () => of(true)
+    } as any);
+
     router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate');
     fixture.detectChanges();
@@ -72,7 +79,6 @@ describe('CitizenListComponent', () => {
   });
 
   it('deve chamar o service.delete ao deletar e recarregar a lista', () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     component.onDelete('1');
     expect(citizensServiceMock.delete).toHaveBeenCalledWith('1');
     expect(citizensServiceMock.findAll).toHaveBeenCalledTimes(2); // Initial + reload
@@ -97,5 +103,11 @@ describe('CitizenListComponent', () => {
       page: 1,
       limit: 10
     });
+  });
+
+  it('deve abrir o modal de detalhes do cidadão ao chamar viewDetails', () => {
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    component.viewDetails('1');
+    expect(dialog.open).toHaveBeenCalled();
   });
 });

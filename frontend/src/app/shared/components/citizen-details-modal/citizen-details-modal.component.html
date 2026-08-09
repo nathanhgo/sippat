@@ -1,0 +1,269 @@
+<div class="dialog-container bg-slate-50 text-slate-800 flex flex-col h-[85vh] max-h-[800px] w-[90vw] max-w-[850px] overflow-hidden rounded-xl shadow-2xl">
+  <!-- Header -->
+  <div class="flex items-center justify-between bg-white border-b border-slate-200 px-6 py-4">
+    <div class="flex items-center gap-3">
+      <div class="h-10 w-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+        <mat-icon>person</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-slate-800 leading-tight">
+          {{ isLoading() ? 'Carregando...' : citizen()?.fullName }}
+        </h2>
+        <p class="text-xs text-slate-500">Detalhes Completos do Cidadão</p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="close()" class="text-slate-400 hover:text-slate-600">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Body Content -->
+  <div class="flex-1 overflow-y-auto p-6 space-y-6">
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center h-64 gap-3">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span class="text-sm text-slate-500">Buscando dados do cidadão...</span>
+      </div>
+    } @else {
+      <!-- Grid Layout for info groups -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Left Side: Basic Info -->
+        <div class="space-y-6">
+          <!-- Dados Pessoais -->
+          <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold text-blue-700 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <mat-icon class="scale-90">contact_phone</mat-icon>
+              Dados Básicos e Contato
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">CPF</span>
+                <span class="font-mono text-slate-700 font-medium">{{ formatCpf(citizen()?.cpf) }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">RG</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.rg || 'Não informado' }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Data de Nascimento</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.birthDate | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Estado Civil</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.maritalStatus }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Gênero</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.gender }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Raça/Cor</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.raceColor }}</span>
+              </div>
+              <div class="col-span-2">
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">E-mail</span>
+                <span class="text-slate-700 font-medium break-all">{{ citizen()?.email || 'Não informado' }}</span>
+              </div>
+              <div class="col-span-2">
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Telefone</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.phone || 'Não informado' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Endereço -->
+          <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold text-blue-700 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <mat-icon class="scale-90">place</mat-icon>
+              Endereço
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div class="col-span-2">
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Logradouro e Número</span>
+                <span class="text-slate-700 font-medium">
+                  {{ citizen()?.addressStreet || 'Sem logradouro' }}{{ citizen()?.addressNumber ? ', ' + citizen()?.addressNumber : '' }}
+                </span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Bairro</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.neighborhood || 'Não informado' }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">CEP</span>
+                <span class="text-slate-700 font-medium font-mono">{{ citizen()?.zipCode || 'Não informado' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Socioeconomic & Professional -->
+        <div class="space-y-6">
+          <!-- Indicadores Socioeconômicos -->
+          <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold text-blue-700 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <mat-icon class="scale-90">monetization_on</mat-icon>
+              Indicadores Socioeconômicos
+            </h3>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">NIS</span>
+                <span class="font-mono text-slate-700 font-medium">{{ citizen()?.socialProfile?.nis || 'Não informado' }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Renda Per Capita</span>
+                <span class="text-slate-700 font-medium">
+                  {{ citizen()?.socialProfile?.perCapitaIncome ? (citizen()?.socialProfile?.perCapitaIncome | currency:'BRL') : 'Não informado' }}
+                </span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Situação de Moradia</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.socialProfile?.housingStatus || 'Não informado' }}</span>
+              </div>
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Membros da Família</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.socialProfile?.familyMembersCount ?? 'Não informado' }}</span>
+              </div>
+              
+              <div class="col-span-2 grid grid-cols-3 gap-2 pt-2">
+                <div class="flex flex-col items-center p-2 rounded bg-slate-50 border border-slate-100">
+                  <span class="text-[10px] text-slate-400 font-bold uppercase">Bolsa Família</span>
+                  <span class="text-xs font-semibold mt-1" [ngClass]="citizen()?.socialProfile?.receivesBolsaFamilia ? 'text-emerald-600' : 'text-slate-500'">
+                    {{ citizen()?.socialProfile?.receivesBolsaFamilia ? 'Sim' : 'Não' }}
+                  </span>
+                </div>
+                <div class="flex flex-col items-center p-2 rounded bg-slate-50 border border-slate-100">
+                  <span class="text-[10px] text-slate-400 font-bold uppercase">Benefício BPC</span>
+                  <span class="text-xs font-semibold mt-1" [ngClass]="citizen()?.socialProfile?.receivesBpc ? 'text-emerald-600' : 'text-slate-500'">
+                    {{ citizen()?.socialProfile?.receivesBpc ? 'Sim' : 'Não' }}
+                  </span>
+                </div>
+                <div class="flex flex-col items-center p-2 rounded bg-slate-50 border border-slate-100">
+                  <span class="text-[10px] text-slate-400 font-bold uppercase">PcD</span>
+                  <span class="text-xs font-semibold mt-1" [ngClass]="citizen()?.socialProfile?.isPcd ? 'text-blue-600' : 'text-slate-500'">
+                    {{ citizen()?.socialProfile?.isPcd ? 'Sim' : 'Não' }}
+                  </span>
+                </div>
+              </div>
+
+              @if (citizen()?.socialProfile?.isPcd && citizen()?.socialProfile?.pcdDescription) {
+                <div class="col-span-2 bg-blue-50/50 p-3 rounded border border-blue-100 text-xs">
+                  <span class="block text-slate-400 font-bold uppercase tracking-wider mb-1">Descrição da Deficiência</span>
+                  <p class="text-slate-700 font-medium leading-relaxed">{{ citizen()?.socialProfile?.pcdDescription }}</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Perfil Profissional -->
+          <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-sm font-semibold text-blue-700 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <mat-icon class="scale-90">work</mat-icon>
+              Perfil Profissional
+            </h3>
+            
+            <div class="space-y-3 text-sm">
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Escolaridade</span>
+                <span class="text-slate-700 font-medium">{{ citizen()?.professionalProfile?.educationLevel || 'Não informado' }}</span>
+              </div>
+              
+              <!-- Áreas de Interesse -->
+              @if (citizen()?.professionalProfile?.targetAreas?.length) {
+                <div>
+                  <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Áreas de Interesse</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (area of citizen()?.professionalProfile?.targetAreas; track area) {
+                      <span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-100">
+                        {{ area }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Cursos -->
+              @if (citizen()?.professionalProfile?.courses?.length) {
+                <div>
+                  <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Cursos / Capacitações</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (course of citizen()?.professionalProfile?.courses; track course) {
+                      <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-medium rounded border border-slate-200">
+                        {{ course }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Experiências -->
+              @if (citizen()?.professionalProfile?.experiences?.length) {
+                <div>
+                  <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Experiências</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (exp of citizen()?.professionalProfile?.experiences; track exp) {
+                      <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-medium rounded border border-slate-200">
+                        {{ exp }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Atendimentos Histórico -->
+      <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-sm font-semibold text-blue-700 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <mat-icon class="scale-90">history</mat-icon>
+          Histórico de Atendimentos no PAT
+        </h3>
+
+        @if (attendances().length === 0) {
+          <p class="text-sm text-slate-400 italic">Nenhum atendimento anterior registrado para este cidadão.</p>
+        } @else {
+          <div class="overflow-hidden border border-slate-100 rounded-lg">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-150">
+                  <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider">Data</th>
+                  <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider">Serviço</th>
+                  <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider">Observações</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 bg-white">
+                @for (attendance of attendances(); track attendance.id) {
+                  <tr class="hover:bg-slate-50/50">
+                    <td class="py-2.5 px-4 text-slate-600 font-mono text-xs whitespace-nowrap">
+                      {{ attendance.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                    </td>
+                    <td class="py-2.5 px-4">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                        {{ attendance.serviceType }}
+                      </span>
+                    </td>
+                    <td class="py-2.5 px-4 text-slate-500 text-xs">
+                      {{ attendance.notes || 'Sem observações' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-end">
+    <button mat-flat-button color="primary" (click)="close()">
+      <span>Fechar</span>
+    </button>
+  </div>
+</div>

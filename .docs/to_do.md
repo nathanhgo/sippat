@@ -70,6 +70,7 @@
 - [x] Aplicar criptografia para os demais campos sensíveis pendentes (`RNF-003`).
 - [x] Testes de carga (RNF-001) e testes de segurança (dependências, payloads) — ver `tests.md` §6.
 - [x] Validação geral do sistema e revisão de cobertura de testes (mínimo de 90%, ver `tests.md` §6).
+- [x] Permitir a visualização de todos os dados do cidadão em um card/modal ao clicar em seu nome nas listas de cidadãos e atendimentos.
 
 
 

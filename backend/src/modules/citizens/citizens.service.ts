@@ -271,4 +271,23 @@ export class CitizensService {
 
     return this.decryptCitizen(updated);
   }
+
+  async delete(id: string) {
+    const citizen = await this.prisma.citizen.findUnique({
+      where: { id },
+    });
+
+    if (!citizen) {
+      throw new NotFoundException('Cidadão não encontrado');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.attendance.deleteMany({ where: { citizenId: id } });
+      await tx.socialProfile.deleteMany({ where: { citizenId: id } });
+      await tx.professionalProfile.deleteMany({ where: { citizenId: id } });
+      await tx.citizen.delete({ where: { id } });
+    });
+
+    return { message: 'Cidadão excluído com sucesso' };
+  }
 }

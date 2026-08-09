@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Param, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Param, Get, Query, UseGuards, UseInterceptors, Delete } from '@nestjs/common';
 import { CitizensService } from './citizens.service';
 import { CreateCitizenDto } from './dto/create-citizen.dto';
 import { UpdateCitizenDto } from './dto/update-citizen.dto';
@@ -30,5 +30,10 @@ export class CitizensController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateCitizenDto: UpdateCitizenDto) {
     return this.citizensService.update(id, updateCitizenDto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.citizensService.delete(id);
   }
 }

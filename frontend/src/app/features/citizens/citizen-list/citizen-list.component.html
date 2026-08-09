@@ -92,7 +92,11 @@
             <!-- Name Column -->
             <ng-container matColumnDef="fullName">
               <th mat-header-cell *matHeaderCellDef class="text-slate-700 font-semibold py-3 px-4">Nome Completo</th>
-              <td mat-cell *matCellDef="let element" class="py-3 px-4 text-slate-800 font-medium">{{element.fullName}}</td>
+              <td mat-cell *matCellDef="let element" class="py-3 px-4">
+                <button (click)="viewDetails(element.id)" class="text-left text-blue-600 hover:text-blue-800 hover:underline font-medium focus:outline-none transition-colors">
+                  {{element.fullName}}
+                </button>
+              </td>
             </ng-container>
 
             <!-- CPF Column -->
@@ -129,10 +133,10 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef class="text-slate-700 font-semibold py-3 px-4 text-right">Ações</th>
               <td mat-cell *matCellDef="let element" class="py-3 px-4 text-right">
-                <button mat-icon-button color="primary" (click)="onEdit(element.id)" aria-label="Editar cidadão">
+                <button mat-icon-button type="button" color="primary" (click)="onEdit(element.id)" aria-label="Editar cidadão">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="onDelete(element.id)" aria-label="Excluir cidadão">
+                <button mat-icon-button type="button" color="warn" (click)="onDelete(element.id, $event)" aria-label="Excluir cidadão">
                   <mat-icon>delete</mat-icon>
                 </button>
               </td>

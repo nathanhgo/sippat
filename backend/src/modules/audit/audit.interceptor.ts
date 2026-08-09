@@ -29,28 +29,36 @@ export class AuditInterceptor implements NestInterceptor {
       tap(async (data) => {
         if (!userId) return;
 
-        let citizenId: string | undefined;
+        try {
+          let citizenId: string | undefined;
 
-        if (request.params?.id) {
-          citizenId = request.params.id;
-        } else if (data?.id) {
-          citizenId = data.id;
-        } else if (data?.citizenId) {
-          citizenId = data.citizenId;
+          if (action === AuditAction.DELETE) {
+            citizenId = undefined; // Avoid FK violation on deleted citizen
+          } else if (request.params?.id) {
+            citizenId = request.params.id;
+          } else if (data?.id) {
+            citizenId = data.id;
+          } else if (data?.citizenId) {
+            citizenId = data.citizenId;
+          }
+
+          const metadata = {
+            url,
+            method,
+            ...(action === AuditAction.DELETE && request.params?.id ? { deletedCitizenId: request.params.id } : {}),
+          };
+
+          await this.auditService.createLog({
+            userId,
+            citizenId,
+            action,
+            entity: 'citizen',
+            metadata,
+          });
+        } catch (error) {
+          // Log error silently without failing the response
+          console.error('AuditInterceptor log creation failed:', error);
         }
-
-        const metadata = {
-          url,
-          method,
-        };
-
-        await this.auditService.createLog({
-          userId,
-          citizenId,
-          action,
-          entity: 'citizen',
-          metadata,
-        });
       }),
     );
   }

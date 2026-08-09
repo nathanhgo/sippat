@@ -28,10 +28,19 @@ describe('CitizensService', () => {
       findUnique: vi.fn(),
       findMany: vi.fn(),
       count: vi.fn(),
+      delete: vi.fn(),
     },
     socialProfile: {
       findUnique: vi.fn(),
+      deleteMany: vi.fn(),
     },
+    professionalProfile: {
+      deleteMany: vi.fn(),
+    },
+    attendance: {
+      deleteMany: vi.fn(),
+    },
+    $transaction: vi.fn((arg) => (typeof arg === 'function' ? arg(mockPrismaService) : Promise.all(arg))),
   };
 
   beforeEach(async () => {
@@ -186,6 +195,24 @@ describe('findOne / read', () => {
       expect(result.total).toBe(1);
       expect(result.data[0].socialProfile.perCapitaIncome).toBe(600);
       expect(mockPrismaService.citizen.findMany).toHaveBeenCalled();
+    });
+  });
+
+  describe('delete', () => {
+    it('deve excluir o cidadão e seus relacionamentos com sucesso', async () => {
+      mockPrismaService.citizen.findUnique.mockResolvedValue({ id: 'citizen-1' });
+
+      const result = await service.delete('citizen-1');
+
+      expect(result).toBeDefined();
+      expect(result.message).toBe('Cidadão excluído com sucesso');
+      expect(mockPrismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('deve lançar exceção ao tentar excluir cidadão inexistente', async () => {
+      mockPrismaService.citizen.findUnique.mockResolvedValue(null);
+
+      await expect(service.delete('non-existent')).rejects.toThrow('Cidadão não encontrado');
     });
   });
 });

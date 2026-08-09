@@ -126,12 +126,16 @@
 - Adicionado botão "Registrar Atendimento" na listagem de atendimentos apontando para o formulário `/attendances/new`.
 - Atualizados os testes unitários do backend e do frontend, totalizando **56 testes no backend e 52 no frontend**, todos passando com sucesso.
 
+## 2026-08-09 — Visualização de Detalhes do Cidadão em Modal
+- Criado o componente standalone `CitizenDetailsModalComponent` no frontend Angular para exibir todas as informações do cidadão (dados básicos, contato, endereço, perfil socioeconômico, perfil profissional e histórico de atendimentos).
+- Atualizado o `CitizenListComponent` no frontend Angular para injetar `MatDialog` e abrir o novo modal ao clicar no nome de um cidadão na tabela.
+- Atualizado o `AttendanceListComponent` no frontend Angular para injetar `MatDialog` e abrir o novo modal ao clicar no nome de um cidadão na tabela de histórico de atendimentos.
+- Criados testes unitários adicionais para validar a abertura do modal nas duas listagens. Todos os testes unitários e de integração do frontend passaram com sucesso.
 
-
-
-
-
-
-
-
+## 2026-08-09 — Correção da Exclusão de Cidadãos (Backend & Foreign Keys)
+- Identificado que o backend NestJS não possuía a rota `@Delete(':id')` no `CitizensController` e o método `delete(id)` no `CitizensService`.
+- Implementado a rota `@Delete(':id')` com o `AuditInterceptor` registrando a ação de auditoria `DELETE`.
+- Implementado o método `delete(id)` no `CitizensService` utilizando `$transaction` do Prisma para remover em cascata os registros vinculados (`attendances`, `social_profiles`, `professional_profiles`), prevenindo erros de constraint de chave estrangeira (`onDelete: Restrict`).
+- Adicionados testes unitários no backend em `citizens.service.spec.ts`. Todos os 58 testes do backend e 54 do frontend estão passando com sucesso.
+- Substituído o `confirm()` nativo do navegador (que pode ser bloqueado por configurações de pop-up) pelo novo componente modal `ConfirmDialogComponent`, garantindo disparo fluido e confiável da exclusão via `MatDialog`.
 
