@@ -139,3 +139,10 @@
 - Adicionados testes unitários no backend em `citizens.service.spec.ts`. Todos os 58 testes do backend e 54 do frontend estão passando com sucesso.
 - Substituído o `confirm()` nativo do navegador (que pode ser bloqueado por configurações de pop-up) pelo novo componente modal `ConfirmDialogComponent`, garantindo disparo fluido e confiável da exclusão via `MatDialog`.
 
+## 2026-08-09 — Validação e Atualização dos Dados de Carga (Seed e Documentação)
+- Atualizados os dados fictícios em `backend/prisma/seed.ts` e `readme.md` para utilizar valores de CPF e NIS 100% válidos perante o algoritmo oficial Módulo 11 (Receita Federal e CEF).
+- João Silva de Souza: CPF `529.982.247-25` | NIS `123.456.789-00`
+- Maria Aparecida Oliveira: CPF `912.384.750-60` | NIS `234.567.890-13`
+- Carlos Henrique dos Santos: CPF `123.456.789-09`
+
+

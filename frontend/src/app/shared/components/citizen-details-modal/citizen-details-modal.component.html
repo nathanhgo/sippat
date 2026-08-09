@@ -172,11 +172,11 @@
               </div>
               
               <!-- Áreas de Interesse -->
-              @if (citizen()?.professionalProfile?.targetAreas?.length) {
+              @if (getTargetAreas(citizen()?.professionalProfile).length) {
                 <div>
                   <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Áreas de Interesse</span>
                   <div class="flex flex-wrap gap-1.5">
-                    @for (area of citizen()?.professionalProfile?.targetAreas; track area) {
+                    @for (area of getTargetAreas(citizen()?.professionalProfile); track area) {
                       <span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-100">
                         {{ area }}
                       </span>
@@ -186,11 +186,11 @@
               }
 
               <!-- Cursos -->
-              @if (citizen()?.professionalProfile?.courses?.length) {
+              @if (getCourses(citizen()?.professionalProfile).length) {
                 <div>
                   <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Cursos / Capacitações</span>
                   <div class="flex flex-wrap gap-1.5">
-                    @for (course of citizen()?.professionalProfile?.courses; track course) {
+                    @for (course of getCourses(citizen()?.professionalProfile); track course) {
                       <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-medium rounded border border-slate-200">
                         {{ course }}
                       </span>
@@ -200,14 +200,14 @@
               }
 
               <!-- Experiências -->
-              @if (citizen()?.professionalProfile?.experiences?.length) {
+              @if (getExperiences(citizen()?.professionalProfile).length) {
                 <div>
                   <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Experiências</span>
-                  <div class="flex flex-wrap gap-1.5">
-                    @for (exp of citizen()?.professionalProfile?.experiences; track exp) {
-                      <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-medium rounded border border-slate-200">
+                  <div class="flex flex-col gap-1.5">
+                    @for (exp of getExperiences(citizen()?.professionalProfile); track exp) {
+                      <div class="p-2 bg-slate-50 text-slate-700 text-xs font-medium rounded border border-slate-200">
                         {{ exp }}
-                      </span>
+                      </div>
                     }
                   </div>
                 </div>

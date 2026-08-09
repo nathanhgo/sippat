@@ -120,6 +120,19 @@ export class CitizenFormComponent implements OnInit {
     });
   }
 
+  formatExperienceItem(exp: any): string {
+    if (!exp) return '';
+    if (typeof exp === 'string') return exp;
+    if (typeof exp === 'object') {
+      const parts = [];
+      if (exp.cargo) parts.push(`Cargo: ${exp.cargo}`);
+      if (exp.empresa) parts.push(`Empresa: ${exp.empresa}`);
+      if (exp.duracao) parts.push(`Duração: ${exp.duracao}`);
+      return parts.length > 0 ? parts.join(' - ') : JSON.stringify(exp);
+    }
+    return String(exp);
+  }
+
   loadCitizen() {
     if (!this.citizenId) return;
     this.isLoading.set(true);
@@ -127,10 +140,58 @@ export class CitizenFormComponent implements OnInit {
       next: (data) => {
         this.isLoading.set(false);
         if (data.birthDate) {
-          data.birthDate = new Date(data.birthDate).toISOString().substring(0, 10);
+          try {
+            const dateObj = new Date(data.birthDate);
+            if (!isNaN(dateObj.getTime())) {
+              data.birthDate = dateObj.toISOString().substring(0, 10);
+            }
+          } catch (e) {
+            // Keep original if parsing fails
+          }
         }
+
+        // Format professional profile arrays/objects to strings for form inputs
+        if (data.professionalProfile) {
+          const prof = data.professionalProfile;
+          let expString = '';
+          if (Array.isArray(prof.experiences)) {
+            expString = prof.experiences.map((e: any) => this.formatExperienceItem(e)).join('\n');
+          } else if (typeof prof.experiences === 'object' && prof.experiences !== null) {
+            expString = this.formatExperienceItem(prof.experiences);
+          } else {
+            expString = prof.experiences || '';
+          }
+
+          data.professionalProfile = {
+            educationLevel: prof.educationLevel || '',
+            courses: Array.isArray(prof.courses) ? prof.courses.join(', ') : (prof.courses || ''),
+            experiences: expString,
+            targetAreas: Array.isArray(prof.targetAreas) ? prof.targetAreas.join(', ') : (prof.targetAreas || '')
+          };
+        }
+
+        if (!data.socialProfile) {
+          data.socialProfile = {
+            nis: '',
+            perCapitaIncome: null,
+            housingStatus: null,
+            familyMembersCount: null,
+            receivesBolsaFamilia: false,
+            receivesBpc: false,
+            isPcd: false,
+            pcdDescription: ''
+          };
+        }
+
         this.citizenForm.patchValue(data);
-        this.citizenForm.get('cpf')?.disable();
+        const cpfControl = this.citizenForm.get('cpf');
+        if (this.citizenId && cpfControl) {
+          cpfControl.clearValidators();
+          cpfControl.setErrors(null);
+          cpfControl.disable();
+        }
+        this.citizenForm.updateValueAndValidity();
+        this.citizenForm.markAsPristine();
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -141,17 +202,34 @@ export class CitizenFormComponent implements OnInit {
 
   onSubmit() {
     if (this.citizenForm.invalid) {
+      this.citizenForm.markAllAsTouched();
+      this.errorMessage.set('Existem campos obrigatórios ou inválidos no formulário. Por favor, revise os dados das abas.');
       return;
     }
 
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
-    const payload = this.citizenForm.getRawValue();
+    const rawValue = this.citizenForm.getRawValue();
+
+    // Format professional profile strings back to arrays for backend DTO
+    if (rawValue.professionalProfile) {
+      const prof = rawValue.professionalProfile;
+      rawValue.professionalProfile = {
+        educationLevel: prof.educationLevel || undefined,
+        courses: typeof prof.courses === 'string' && prof.courses.trim() 
+          ? prof.courses.split(',').map((s: string) => s.trim()).filter(Boolean) 
+          : [],
+        experiences: prof.experiences || undefined,
+        targetAreas: typeof prof.targetAreas === 'string' && prof.targetAreas.trim() 
+          ? prof.targetAreas.split(',').map((s: string) => s.trim()).filter(Boolean) 
+          : []
+      };
+    }
 
     const request$ = this.citizenId
-      ? this.citizensService.update(this.citizenId, payload)
-      : this.citizensService.create(payload);
+      ? this.citizensService.update(this.citizenId, rawValue)
+      : this.citizensService.create(rawValue);
 
     request$.subscribe({
       next: () => {

@@ -57,7 +57,9 @@ async function main() {
   // Cidadão 1: João Silva
   const citizen1 = await prisma.citizen.upsert({
     where: { cpf: '52998224725' }, // CPF válido
-    update: {},
+    update: {
+      fullName: 'João Silva de Souza',
+    },
     create: {
       fullName: 'João Silva de Souza',
       cpf: '52998224725',
@@ -74,7 +76,7 @@ async function main() {
       zipCode: '12308030',
       socialProfile: {
         create: {
-          nis: encrypt('12345678901'),
+          nis: encrypt('12345678900'), // NIS válido (dígito 0)
           perCapitaIncome: encrypt('650.00'),
           housingStatus: HousingStatus.RENTED,
           familyMembersCount: 3,
@@ -98,11 +100,13 @@ async function main() {
 
   // Cidadão 2: Maria Oliveira (PcD)
   const citizen2 = await prisma.citizen.upsert({
-    where: { cpf: '38374246875' }, // CPF válido
-    update: {},
+    where: { cpf: '91238475060' }, // CPF válido
+    update: {
+      fullName: 'Maria Aparecida Oliveira',
+    },
     create: {
       fullName: 'Maria Aparecida Oliveira',
-      cpf: '38374246875',
+      cpf: '91238475060',
       rg: '987654321',
       birthDate: new Date('1982-10-20'),
       gender: Gender.FEMININO,
@@ -116,7 +120,7 @@ async function main() {
       zipCode: '12327000',
       socialProfile: {
         create: {
-          nis: encrypt('23456789012'),
+          nis: encrypt('23456789013'), // NIS válido (dígito 3)
           perCapitaIncome: encrypt('1200.00'),
           housingStatus: HousingStatus.OWN,
           familyMembersCount: 4,

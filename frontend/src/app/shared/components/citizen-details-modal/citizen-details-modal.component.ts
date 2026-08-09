@@ -75,4 +75,60 @@ export class CitizenDetailsModalComponent implements OnInit {
     if (clean.length !== 11) return cpf;
     return `${clean.substring(0, 3)}.${clean.substring(3, 6)}.${clean.substring(6, 9)}-${clean.substring(9)}`;
   }
+
+  formatExperience(item: any): string {
+    if (!item) return '';
+    if (typeof item === 'string') {
+      if (item === '[object Object]' || item.includes('[object Object]')) return '';
+      return item;
+    }
+    if (typeof item === 'object') {
+      const parts = [];
+      if (item.cargo) parts.push(`Cargo: ${item.cargo}`);
+      if (item.empresa) parts.push(`Empresa: ${item.empresa}`);
+      if (item.duracao) parts.push(`Duração: ${item.duracao}`);
+      return parts.length > 0 ? parts.join(' - ') : '';
+    }
+    return String(item);
+  }
+
+  getExperiences(prof: any): string[] {
+    if (!prof || !prof.experiences) return [];
+    let exp = prof.experiences;
+    if (typeof exp === 'string') {
+      if (exp.startsWith('[')) {
+        try { exp = JSON.parse(exp); } catch (e) {}
+      } else {
+        return exp.split('\n').map((s: string) => s.trim()).filter(Boolean);
+      }
+    }
+    if (Array.isArray(exp)) {
+      return exp.map((item: any) => this.formatExperience(item)).filter(Boolean);
+    }
+    return [this.formatExperience(exp)].filter(Boolean);
+  }
+
+  getCourses(prof: any): string[] {
+    if (!prof || !prof.courses) return [];
+    let c = prof.courses;
+    if (typeof c === 'string') {
+      return c.split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+    if (Array.isArray(c)) {
+      return c.map((s: any) => String(s)).filter(Boolean);
+    }
+    return [];
+  }
+
+  getTargetAreas(prof: any): string[] {
+    if (!prof || !prof.targetAreas) return [];
+    let a = prof.targetAreas;
+    if (typeof a === 'string') {
+      return a.split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+    if (Array.isArray(a)) {
+      return a.map((s: any) => String(s)).filter(Boolean);
+    }
+    return [];
+  }
 }
