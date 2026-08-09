@@ -61,15 +61,15 @@
 
 
 
-## Fase 5: Segurança (LGPD) e Refinamento
+## Fase 5: Segurança (LGPD) e Refinamento ✅ (concluída)
 
-- [ ] Escrever testes do módulo de auditoria (`audit_logs`), incluindo o job de expurgo de logs com mais de 3 meses (RNF-005).
-- [ ] Implementar trilha de auditoria e job de expurgo até os testes passarem.
-- [ ] Escrever testes do job de anonimização de cadastros inativos há mais de 1 ano (RNF-006).
-- [ ] Implementar job de anonimização/retenção de dados até os testes passarem.
-- [ ] Aplicar criptografia para os demais campos sensíveis pendentes (`RNF-003`).
-- [ ] Testes de carga (RNF-001) e testes de segurança (dependências, payloads) — ver `tests.md` §6.
-- [ ] Validação geral do sistema e revisão de cobertura de testes (mínimo de 90%, ver `tests.md` §6).
+- [x] Escrever testes do módulo de auditoria (`audit_logs`), incluindo o job de expurgo de logs com mais de 3 meses (RNF-005).
+- [x] Implementar trilha de auditoria e job de expurgo até os testes passarem.
+- [x] Escrever testes do job de anonimização de cadastros inativos há mais de 1 ano (RNF-006).
+- [x] Implementar job de anonimização/retenção de dados até os testes passarem.
+- [x] Aplicar criptografia para os demais campos sensíveis pendentes (`RNF-003`).
+- [x] Testes de carga (RNF-001) e testes de segurança (dependências, payloads) — ver `tests.md` §6.
+- [x] Validação geral do sistema e revisão de cobertura de testes (mínimo de 90%, ver `tests.md` §6).
 
 
 

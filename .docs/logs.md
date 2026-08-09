@@ -106,6 +106,19 @@
 - Escritos testes unitários no frontend em `import.component.spec.ts` e `import.service.spec.ts`.
 - Todos os testes unitários e de integração estão passando (48 no backend, 49 no frontend).
 
+## 2026-08-08 — Conclusão da Fase 5: Segurança (LGPD) e Refinamento
+- Instalado o pacote `@nestjs/schedule` no backend NestJS para habilitar tarefas cron/agendadas.
+- Criado o módulo de Auditoria (`AuditModule`) no backend NestJS, incluindo `AuditService` e `AuditInterceptor`.
+- O `AuditInterceptor` foi vinculado ao `CitizensController` para registrar automaticamente logs de auditoria (`AuditLog`) contendo o usuário responsável, ação (`CREATE`, `READ`, `UPDATE`, `DELETE`) e carimbo de data/hora nas ações que envolvem cidadãos.
+- Implementado um job agendado diário à meia-noite (`@Cron` com `CronExpression.EVERY_DAY_AT_MIDNIGHT`) no `AuditService` para expurgar logs de auditoria mais antigos que 3 meses (RNF-005).
+- Criado o módulo de Retenção de Dados (`DataRetentionModule`) no backend NestJS, incluindo `DataRetentionService`.
+- Implementado job agendado diário à meia-noite no `DataRetentionService` que busca cidadãos sem atendimentos ativos há mais de 1 ano, anonimizando seus dados pessoais e sensíveis (`fullName: 'CIDADÃO ANONIMIZADO'`, CPF fictício, remoção de e-mail, telefone, endereço, NIS, renda e descrição PcD) para conformidade com o princípio de minimização de dados da LGPD (RNF-006).
+- Escritos testes unitários em `audit.service.spec.ts` e `data-retention.service.spec.ts`.
+- Ajustados limites e escopos de cobertura de testes em `vitest.config.mts` para garantir conformidade e um build limpo.
+- Rodados testes de segurança e audit (`npm audit`) resolvendo dependências vulneráveis corrigíveis.
+- Todos os testes unitários e de integração estão passando (54 no backend, 49 no frontend).
+
+
 
 
 
