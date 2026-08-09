@@ -231,14 +231,25 @@
             <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-150">
+                  <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider">ID</th>
                   <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider">Data</th>
                   <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider">Serviço</th>
                   <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider">Observações</th>
+                  <th class="py-2.5 px-4 text-slate-600 font-semibold text-xs uppercase tracking-wider text-right">Ação</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 bg-white">
                 @for (attendance of attendances(); track attendance.id) {
-                  <tr class="hover:bg-slate-50/50">
+                  <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="py-2.5 px-4">
+                      <button 
+                        (click)="viewAttendanceDetails(attendance)"
+                        class="font-mono text-xs font-semibold bg-slate-100 text-indigo-700 hover:bg-indigo-50 px-2 py-0.5 rounded border border-slate-200"
+                        title="Ver detalhes deste atendimento"
+                      >
+                        #{{ attendance.id.substring(0, 8) }}...
+                      </button>
+                    </td>
                     <td class="py-2.5 px-4 text-slate-600 font-mono text-xs whitespace-nowrap">
                       {{ attendance.createdAt | date:'dd/MM/yyyy HH:mm' }}
                     </td>
@@ -247,8 +258,18 @@
                         {{ attendance.serviceType }}
                       </span>
                     </td>
-                    <td class="py-2.5 px-4 text-slate-500 text-xs">
+                    <td class="py-2.5 px-4 text-slate-500 text-xs truncate max-w-[200px]" [title]="attendance.notes">
                       {{ attendance.notes || 'Sem observações' }}
+                    </td>
+                    <td class="py-2.5 px-4 text-right">
+                      <button 
+                        mat-button
+                        color="primary"
+                        class="!text-xs !h-7 !px-2"
+                        (click)="viewAttendanceDetails(attendance)"
+                      >
+                        Ver Ficha
+                      </button>
                     </td>
                   </tr>
                 }

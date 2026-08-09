@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CitizensService } from '../../../core/services/citizens.service';
 import { AttendancesService } from '../../../core/services/attendances.service';
+import { AttendanceDetailsModalComponent } from '../attendance-details-modal/attendance-details-modal.component';
 
 @Component({
   selector: 'app-citizen-details-modal',
@@ -27,6 +28,7 @@ import { AttendancesService } from '../../../core/services/attendances.service';
 export class CitizenDetailsModalComponent implements OnInit {
   private readonly citizensService = inject(CitizensService);
   private readonly attendancesService = inject(AttendancesService);
+  private readonly dialog = inject(MatDialog);
   
   citizen = signal<any>(null);
   attendances = signal<any[]>([]);
@@ -67,6 +69,14 @@ export class CitizenDetailsModalComponent implements OnInit {
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  viewAttendanceDetails(attendance: any): void {
+    this.dialog.open(AttendanceDetailsModalComponent, {
+      width: '750px',
+      maxWidth: '95vw',
+      data: { attendanceData: attendance, attendanceId: attendance.id }
+    });
   }
 
   formatCpf(cpf: string): string {

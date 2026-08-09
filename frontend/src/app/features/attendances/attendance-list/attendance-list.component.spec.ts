@@ -64,4 +64,10 @@ describe('AttendanceListComponent', () => {
     component.viewCitizenDetails('1');
     expect(dialog.open).toHaveBeenCalled();
   });
+
+  it('deve abrir o modal de detalhes do atendimento ao chamar viewAttendanceDetails', () => {
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    component.viewAttendanceDetails({ id: '1', serviceType: 'ORIENTACAO' });
+    expect(dialog.open).toHaveBeenCalled();
+  });
 });

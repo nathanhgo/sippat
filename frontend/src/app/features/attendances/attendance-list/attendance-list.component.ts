@@ -10,6 +10,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AttendancesService } from '../../../core/services/attendances.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CitizenDetailsModalComponent } from '../../../shared/components/citizen-details-modal/citizen-details-modal.component';
+import { AttendanceDetailsModalComponent } from '../../../shared/components/attendance-details-modal/attendance-details-modal.component';
 
 @Component({
   selector: 'app-attendance-list',
@@ -41,6 +42,14 @@ export class AttendanceListComponent implements OnInit {
     });
   }
 
+  viewAttendanceDetails(element: any) {
+    this.dialog.open(AttendanceDetailsModalComponent, {
+      data: { attendanceData: element, attendanceId: element.id },
+      width: '750px',
+      maxWidth: '95vw'
+    });
+  }
+
   attendances = signal<any[]>([]);
   totalAttendances = signal<number>(0);
   isLoading = signal<boolean>(true);
@@ -48,7 +57,7 @@ export class AttendanceListComponent implements OnInit {
   // Pagination
   page = 1;
   pageSize = 10;
-  displayedColumns: string[] = ['createdAt', 'citizenName', 'citizenCpf', 'serviceType', 'userName', 'notes'];
+  displayedColumns: string[] = ['id', 'createdAt', 'citizenName', 'serviceType', 'userName', 'notes', 'actions'];
 
   ngOnInit(): void {
     this.loadAttendances();
