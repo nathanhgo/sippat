@@ -13,6 +13,122 @@
       </button>
     </div>
 
+    <!-- Search bar and Filters Toggle -->
+    <div class="flex flex-col gap-4 bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between gap-4">
+        <mat-form-field appearance="outline" class="w-full max-w-md custom-form-field-no-margin">
+          <mat-label>Buscar por nome do cidadão</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Digite o nome do cidadão...">
+          <mat-icon matSuffix class="text-slate-400">search</mat-icon>
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="showAdvancedFilters.set(!showAdvancedFilters())" class="flex items-center gap-1 relative">
+          <mat-icon>{{ showAdvancedFilters() ? 'filter_list_off' : 'filter_list' }}</mat-icon>
+          <span>Filtros Avançados</span>
+          @if (hasActiveFilters) {
+            <span class="absolute -top-1.5 -right-1.5 h-4 w-4 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">!</span>
+          }
+        </button>
+      </div>
+
+      <!-- Advanced Filters Panel -->
+      @if (showAdvancedFilters()) {
+        <div class="border-t border-slate-100 pt-4 mt-2 flex flex-col gap-4 animate-fade-in">
+          <h3 class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <mat-icon class="scale-90 text-indigo-600">tune</mat-icon>
+            Filtrar por Critérios Avançados
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <!-- Tipo de Serviço -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Tipo de Serviço</mat-label>
+              <mat-select [formControl]="serviceTypeControl">
+                @for (opt of serviceTypeOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix class="text-slate-400">work</mat-icon>
+            </mat-form-field>
+
+            <!-- Nome do Atendente -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Nome do Atendente</mat-label>
+              <input matInput [formControl]="attendantNameControl" placeholder="Ex: Maria Santos">
+              <mat-icon matSuffix class="text-slate-400">badge</mat-icon>
+            </mat-form-field>
+
+            <!-- Date From -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Data de Início (De)</mat-label>
+              <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" placeholder="dd/mm/aaaa">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFrom></mat-datepicker>
+            </mat-form-field>
+
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+
+            <!-- Date To -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Data de Término (Até)</mat-label>
+              <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" placeholder="dd/mm/aaaa">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+              <mat-datepicker #pickerTo></mat-datepicker>
+            </mat-form-field>
+
+            <!-- Spacer -->
+            <div class="hidden md:block"></div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3 justify-end h-14">
+              <button mat-stroked-button (click)="clearAdvancedFilters()">
+                <mat-icon class="scale-90">clear</mat-icon>
+                Limpar Filtros
+              </button>
+              <button mat-flat-button color="primary" (click)="applyAdvancedFilters()">
+                <mat-icon class="scale-90">search</mat-icon>
+                Aplicar Filtros
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Active filter chips summary -->
+          @if (hasActiveFilters) {
+            <div class="flex flex-wrap gap-2 pt-1">
+              @if (serviceTypeControl.value) {
+                <span class="inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-full font-medium">
+                  <mat-icon class="scale-75">work</mat-icon>
+                  Serviço: {{ getServiceTypeLabel(serviceTypeControl.value) }}
+                </span>
+              }
+              @if (attendantNameControl.value) {
+                <span class="inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-full font-medium">
+                  <mat-icon class="scale-75">badge</mat-icon>
+                  Atendente: "{{ attendantNameControl.value }}"
+                </span>
+              }
+              @if (dateFromControl.value) {
+                <span class="inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-full font-medium">
+                  <mat-icon class="scale-75">calendar_today</mat-icon>
+                  De: {{ dateFromControl.value | date:'dd/MM/yyyy' }}
+                </span>
+              }
+              @if (dateToControl.value) {
+                <span class="inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-full font-medium">
+                  <mat-icon class="scale-75">event</mat-icon>
+                  Até: {{ dateToControl.value | date:'dd/MM/yyyy' }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
     <!-- Table Card -->
     <mat-card class="bg-white shadow-sm border border-slate-200 rounded-lg overflow-hidden">
       @if (isLoading()) {
@@ -22,6 +138,7 @@
       } @else {
         <div class="overflow-x-auto">
           <table mat-table [dataSource]="attendances()" class="w-full">
+
             <!-- ID Column -->
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef class="text-slate-700 font-semibold py-3 px-4 w-36">ID</th>
@@ -106,8 +223,14 @@
           @if (attendances().length === 0) {
             <div class="text-center p-12 text-slate-500">
               <mat-icon class="scale-150 text-slate-300 mb-2">assignment_late</mat-icon>
-              <p class="text-base font-medium">Nenhum atendimento registrado</p>
-              <p class="text-sm text-slate-400 mt-1">Os registros aparecerão aqui assim que forem efetuados pelos atendentes.</p>
+              <p class="text-base font-medium">Nenhum atendimento encontrado</p>
+              <p class="text-sm text-slate-400 mt-1">
+                @if (hasActiveFilters || searchControl.value) {
+                  Experimente remover ou ajustar os filtros aplicados.
+                } @else {
+                  Os registros aparecerão aqui assim que forem efetuados pelos atendentes.
+                }
+              </p>
             </div>
           }
         </div>

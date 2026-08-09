@@ -145,4 +145,40 @@
 - Maria Aparecida Oliveira: CPF `912.384.750-60` | NIS `234.567.890-13`
 - Carlos Henrique dos Santos: CPF `123.456.789-09`
 
+## 2026-08-09 — Correção de UX do Formulário de Edição (RF-011)
+- Corrigido o botão "Salvar Cadastro" no `CitizenFormComponent`: alinhamento interno do ícone e texto centralizado via `::ng-deep` no Angular Material MDC.
+- Botão agora é habilitado/desabilitado dinamicamente com `[disabled]="!citizenForm.dirty || isSubmitting()"`, ficando ativo somente quando há alterações pendentes.
+- Corrigido comportamento de validação ao editar: campo CPF (desabilitado em modo edição) não propaga mais erros de validação para o formulário; `clearValidators()` + `setErrors(null)` chamados explicitamente ao desabilitar o controle.
+- Adicionado `markAllAsTouched()` e banner de erro visível ao tentar salvar formulário inválido.
 
+## 2026-08-09 — Correção da Formatação de Experiências Profissionais
+- Corrigida exibição de experiências profissionais no `CitizenDetailsModalComponent` e no `CitizenFormComponent` que apareciam como `[object Object]` ou letra a letra quando o campo continha objetos JSON (`{ empresa, cargo, duracao }`).
+- Implementadas as funções `formatExperience()` / `formatExperienceItem()` que convertem os objetos em texto legível: `Cargo: X - Empresa: Y - Duração: Z`.
+- Adicionados métodos `getExperiences()`, `getCourses()`, `getTargetAreas()` no `CitizenDetailsModalComponent` para garantir iteração sobre arrays em vez de strings.
+- Corrigido registro corrompido da Maria Aparecida Oliveira no banco PostgreSQL (experiência havia sido salva como string literal `[object Object]`).
+
+## 2026-08-09 — Carga do Histórico de Atendimentos e Listagem por Cidadão
+- Identificado que o banco continha apenas 1 atendimento (os demais foram removidos em cascata durante testes de exclusão).
+- Reexecutado `npx prisma db seed` no backend; seed agora popula **4 atendimentos** distribuídos entre os cidadãos cadastrados.
+- Corrigido o endpoint `GET /api/attendances` para incluir `phone`, `email` do cidadão e `email`, `role` do atendente no retorno (necessário para o novo modal de detalhes).
+
+## 2026-08-09 — Modal de Detalhes do Atendimento (RF-009)
+- Criado o componente standalone `AttendanceDetailsModalComponent` (`frontend/src/app/shared/components/attendance-details-modal/`) com template, estilos e lógica TypeScript.
+- O modal exibe: ID completo do atendimento em destaque (fonte monospace, selecionável), banner com tipo de serviço e data/hora, bloco do cidadão atendido (nome clicável que abre o perfil do cidadão, CPF, telefone, e-mail), bloco do atendente (nome, e-mail corporativo, cargo), e área de observações/encaminhamentos completa.
+- Integrado na listagem geral de atendimentos (`AttendanceListComponent`): coluna ID exibe `#xxxxxxxx...` clicável; coluna Ações com botão de visualizar.
+- Integrado no modal de detalhes do cidadão (`CitizenDetailsModalComponent`): tabela de histórico de atendimentos passou a exibir coluna ID clicável e botão "Ver Ficha" em cada linha.
+- Adicionados testes unitários: 55 no frontend e 61 no backend, todos passando.
+
+## 2026-08-09 — Filtros Avançados de Atendimentos (RF-012)
+- Atualizado o backend `AttendancesService.findAll()` para aceitar parâmetros de filtro: `serviceType` (ENUM exato), `citizenName` (contains case-insensitive), `attendantName` (contains case-insensitive), `dateFrom` (≥ início do dia) and `dateTo` (≤ 23:59:59 do dia).
+- A query de `count()` utiliza o mesmo `where` dos filtros, garantindo paginação correta.
+- Atualizado o frontend `AttendancesService.findAll()` para receber os novos parâmetros e construir a query string dinamicamente via `URLSearchParams`.
+- Reescrito `AttendanceListComponent` com: barra de busca por nome do cidadão (debounce 400ms, tempo real), painel de "Filtros Avançados" (toggle com badge `!` quando há filtro ativo), select de Tipo de Serviço com todos os 6 valores do ENUM, campo de Atendente, datepickers "De" e "Até", chips de resumo dos filtros ativos, botões "Limpar Filtros" e "Aplicar Filtros".
+- Adicionados testes unitários para `clearAdvancedFilters`, `hasActiveFilters` e `getServiceTypeLabel`.
+- Adicionados testes unitários no backend para filtragem por `serviceType`, `citizenName` e intervalo de datas.
+- Totais finais: **57 testes no frontend** e **61 testes no backend**, todos passando.
+
+## 2026-08-09 — Atualização dos Requisitos (requirements.md)
+- Adicionados **RF-008** (Visualização de Detalhes do Cidadão), **RF-009** (Visualização de Detalhes do Atendimento), **RF-010** (Exclusão de Cidadão com Confirmação), **RF-011** (Edição de Cadastro do Cidadão) e **RF-012** (Busca Avançada de Atendimentos).
+- Refinadas as descrições de **RF-004**, **RF-005**, e dos RNFs **RNF-002**, **RNF-003**, **RNF-004**, **RNF-005** e **RNF-006** para refletir os comportamentos implementados.
+- Adicionado **RNF-007** (Integridade dos Dados) para formalizar a exigência de CPFs/NISs matematicamente válidos nos dados de carga e documentação.

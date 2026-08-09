@@ -40,13 +40,53 @@ export class AttendancesService {
     });
   }
 
-  async findAll(query: { page?: number; limit?: number }) {
+  async findAll(query: {
+    page?: number;
+    limit?: number;
+    serviceType?: string;
+    citizenName?: string;
+    attendantName?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
     const page = Number(query.page ?? 1);
     const limit = Number(query.limit ?? 10);
     const skip = (page - 1) * limit;
 
+    const where: any = {};
+
+    if (query.serviceType) {
+      where.serviceType = query.serviceType;
+    }
+
+    if (query.citizenName) {
+      where.citizen = {
+        fullName: { contains: query.citizenName, mode: 'insensitive' },
+      };
+    }
+
+    if (query.attendantName) {
+      where.user = {
+        name: { contains: query.attendantName, mode: 'insensitive' },
+      };
+    }
+
+    if (query.dateFrom || query.dateTo) {
+      where.createdAt = {};
+      if (query.dateFrom) {
+        where.createdAt.gte = new Date(query.dateFrom);
+      }
+      if (query.dateTo) {
+        // Include the whole end day
+        const endDate = new Date(query.dateTo);
+        endDate.setHours(23, 59, 59, 999);
+        where.createdAt.lte = endDate;
+      }
+    }
+
     const [data, total] = await Promise.all([
       this.prisma.attendance.findMany({
+        where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -56,17 +96,21 @@ export class AttendancesService {
               id: true,
               fullName: true,
               cpf: true,
+              phone: true,
+              email: true,
             },
           },
           user: {
             select: {
               id: true,
               name: true,
+              email: true,
+              role: true,
             },
           },
         },
       }),
-      this.prisma.attendance.count(),
+      this.prisma.attendance.count({ where }),
     ]);
 
     return {

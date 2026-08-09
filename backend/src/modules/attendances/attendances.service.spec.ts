@@ -111,5 +111,38 @@ describe('AttendancesService', () => {
       expect(result.total).toBe(1);
       expect(mockPrismaService.attendance.findMany).toHaveBeenCalled();
     });
+
+    it('deve filtrar por serviceType quando informado', async () => {
+      mockPrismaService.attendance.findMany.mockResolvedValue([]);
+      mockPrismaService.attendance.count.mockResolvedValue(0);
+
+      await service.findAll({ page: 1, limit: 10, serviceType: 'ORIENTACAO' });
+
+      const findManyCall = mockPrismaService.attendance.findMany.mock.calls[0][0];
+      expect(findManyCall.where.serviceType).toBe('ORIENTACAO');
+    });
+
+    it('deve filtrar por nome do cidadão quando informado', async () => {
+      mockPrismaService.attendance.findMany.mockResolvedValue([]);
+      mockPrismaService.attendance.count.mockResolvedValue(0);
+
+      await service.findAll({ page: 1, limit: 10, citizenName: 'João' });
+
+      const findManyCall = mockPrismaService.attendance.findMany.mock.calls[0][0];
+      expect(findManyCall.where.citizen).toBeDefined();
+      expect(findManyCall.where.citizen.fullName.contains).toBe('João');
+    });
+
+    it('deve filtrar por intervalo de datas quando informado', async () => {
+      mockPrismaService.attendance.findMany.mockResolvedValue([]);
+      mockPrismaService.attendance.count.mockResolvedValue(0);
+
+      await service.findAll({ page: 1, limit: 10, dateFrom: '2026-08-01', dateTo: '2026-08-09' });
+
+      const findManyCall = mockPrismaService.attendance.findMany.mock.calls[0][0];
+      expect(findManyCall.where.createdAt).toBeDefined();
+      expect(findManyCall.where.createdAt.gte).toBeInstanceOf(Date);
+      expect(findManyCall.where.createdAt.lte).toBeInstanceOf(Date);
+    });
   });
 });

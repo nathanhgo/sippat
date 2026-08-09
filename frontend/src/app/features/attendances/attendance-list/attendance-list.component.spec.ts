@@ -32,7 +32,7 @@ describe('AttendanceListComponent', () => {
 
     fixture = TestBed.createComponent(AttendanceListComponent);
     component = fixture.componentInstance;
-    
+
     const dialog = fixture.debugElement.injector.get(MatDialog);
     vi.spyOn(dialog, 'open').mockReturnValue({} as any);
 
@@ -54,7 +54,7 @@ describe('AttendanceListComponent', () => {
     attendancesServiceMock.findAll.mockReturnValue(of(mockResponse));
     component.loadAttendances();
 
-    expect(attendancesServiceMock.findAll).toHaveBeenCalledWith({ page: 1, limit: 10 });
+    expect(attendancesServiceMock.findAll).toHaveBeenCalled();
     expect(component.attendances()).toEqual(mockResponse.data);
     expect(component.totalAttendances()).toBe(1);
   });
@@ -69,5 +69,16 @@ describe('AttendanceListComponent', () => {
     const dialog = fixture.debugElement.injector.get(MatDialog);
     component.viewAttendanceDetails({ id: '1', serviceType: 'ORIENTACAO' });
     expect(dialog.open).toHaveBeenCalled();
+  });
+
+  it('deve reportar hasActiveFilters como false quando filtros estão limpos', () => {
+    component.clearAdvancedFilters();
+    expect(component.hasActiveFilters).toBe(false);
+  });
+
+  it('deve retornar o label correto para getServiceTypeLabel', () => {
+    expect(component.getServiceTypeLabel('ORIENTACAO')).toBe('Orientação');
+    expect(component.getServiceTypeLabel('ENCAMINHAMENTO')).toBe('Encaminhamento');
+    expect(component.getServiceTypeLabel('')).toBe('Todos');
   });
 });

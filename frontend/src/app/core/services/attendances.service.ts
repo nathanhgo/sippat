@@ -17,9 +17,25 @@ export class AttendancesService {
     return this.http.get<any>(`${environment.apiUrl}/attendances/citizen/${citizenId}`);
   }
 
-  findAll(params?: { page?: number; limit?: number }): Observable<any> {
+  findAll(params?: {
+    page?: number;
+    limit?: number;
+    serviceType?: string;
+    citizenName?: string;
+    attendantName?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }): Observable<any> {
     const page = params?.page ?? 1;
     const limit = params?.limit ?? 10;
-    return this.http.get<any>(`${environment.apiUrl}/attendances?page=${page}&limit=${limit}`);
+    const queryParams = new URLSearchParams();
+    queryParams.set('page', String(page));
+    queryParams.set('limit', String(limit));
+    if (params?.serviceType) queryParams.set('serviceType', params.serviceType);
+    if (params?.citizenName) queryParams.set('citizenName', params.citizenName);
+    if (params?.attendantName) queryParams.set('attendantName', params.attendantName);
+    if (params?.dateFrom) queryParams.set('dateFrom', params.dateFrom);
+    if (params?.dateTo) queryParams.set('dateTo', params.dateTo);
+    return this.http.get<any>(`${environment.apiUrl}/attendances?${queryParams.toString()}`);
   }
 }
