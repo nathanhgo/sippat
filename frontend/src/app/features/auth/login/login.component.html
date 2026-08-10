@@ -1,0 +1,65 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-100 p-4 font-sans">
+  <mat-card class="w-full max-w-md p-6 shadow-lg rounded-lg border-t-4 border-indigo-600 bg-white">
+    <mat-card-header class="flex flex-col items-center pb-4">
+      <div class="p-3 bg-indigo-50 text-indigo-600 rounded-full mb-3 flex items-center justify-center">
+        <mat-icon>shield</mat-icon>
+      </div>
+      <mat-card-title class="text-2xl font-bold text-slate-800">SIPPAT</mat-card-title>
+      <mat-card-subtitle class="text-slate-500 mt-1 text-sm text-center">Acesse o painel do PAT Jacareí</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content class="pt-4 flex flex-col gap-4">
+      @if (errorMessage()) {
+        <div class="p-3 rounded bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+          <mat-icon class="scale-90">error_outline</mat-icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="nome@pat.sp.gov.br" required>
+          <mat-icon matSuffix class="text-slate-400">mail</mat-icon>
+          @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
+            <mat-error>O e-mail é obrigatório</mat-error>
+          }
+          @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
+            <mat-error>Digite um e-mail válido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Senha</mat-label>
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" required>
+          <button type="button" mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" class="text-slate-400 hover:text-slate-600 focus:outline-none" aria-label="Toggle password visibility">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+            <mat-error>A senha é obrigatória</mat-error>
+          }
+          @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
+            <mat-error>A senha deve ter pelo menos 6 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <button 
+          mat-flat-button 
+          color="primary" 
+          type="submit" 
+          [disabled]="loginForm.invalid || isLoading()" 
+          class="w-full h-12 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 mt-2"
+        >
+          <span class="flex items-center justify-center gap-2">
+            @if (isLoading()) {
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Entrando...</span>
+            } @else {
+              <span>Entrar</span>
+            }
+          </span>
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

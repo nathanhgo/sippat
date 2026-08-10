@@ -28,47 +28,49 @@
 
 
 
-## Fase 2: Autenticação e Módulo de Cidadãos (CRUD)
+## Fase 2: Autenticação e Módulo de Cidadãos (CRUD) ✅ (concluída)
 
-- [ ] Escrever testes do módulo de Auth (login, hashing, guards de perfil) — ver `tests.md` §2.1.
-- [ ] Implementar Módulo de Auth no NestJS (JWT, Login de Funcionários) até os testes passarem.
-- [ ] Escrever testes de validação de CPF, NIS, CEP e dos novos campos obrigatórios (Gênero, Raça/Cor, Estado Civil) — RNF-002, RF-001, ver `tests.md` §2.2.
-- [ ] Criar rotas do CRUD de Cidadãos (`RF-001`, `RF-002`, `RF-003`) com validações estritas até os testes passarem.
-- [ ] Escrever testes de criptografia dos campos sensíveis de `social_profiles` (RNF-003).
-- [ ] Implementar criptografia de campos sensíveis até os testes passarem.
-- [ ] Criar formulários de cadastro e edição fluida no Angular (`RNF-004`), com testes unitários de validação reativa.
-
-
-
-## Fase 3: Busca Avançada e Reutilização de Cadastro
-
-- [ ] Escrever testes do endpoint de Busca Avançada (filtros combinados, paginação, ordenação padrão) — ver `tests.md` §2.3.
-- [ ] Criar endpoint de Busca Avançada combinada com paginação (`RF-005`) até os testes passarem.
-- [ ] Otimizar queries com índices no PostgreSQL e validar com teste de performance (`RNF-001`, `tests.md` §2.3).
-- [ ] Criar tela de Busca com Filtros Avançados e Tabela Dinâmica no Angular, com testes unitários e E2E.
-- [ ] Escrever testes do fluxo de reutilização de cadastro por CPF (sugerir/aceitar/recusar/editar) — RF-006, ver `tests.md` §2.4.
-- [ ] Implementar sugestão automática de cadastro existente ao iniciar atendimento até os testes passarem.
+- [x] Escrever testes do módulo de Auth (login, hashing, guards de perfil) — ver `tests.md` §2.1.
+- [x] Implementar Módulo de Auth no NestJS (JWT, Login de Funcionários) até os testes passarem.
+- [x] Escrever testes de validação de CPF, NIS, CEP e dos novos campos obrigatórios (Gênero, Raça/Cor, Estado Civil) — RNF-002, RF-001, ver `tests.md` §2.2.
+- [x] Criar rotas do CRUD de Cidadãos (`RF-001`, `RF-002`, `RF-003`) com validações estritas até os testes passarem.
+- [x] Escrever testes de criptografia dos campos sensíveis de `social_profiles` (RNF-003).
+- [x] Implementar criptografia de campos sensíveis até os testes passarem.
+- [x] Criar endpoint de registro de usuários (backend) e tela de cadastro de usuário (frontend) para testes e setup local.
+- [x] Criar formulários de cadastro e edição fluida de cidadãos no Angular (`RNF-004`), com testes unitários de validação reativa.
 
 
 
-## Fase 4: Atendimentos e Importação de Excel
+## Fase 3: Busca Avançada e Reutilização de Cadastro ✅ (concluída)
 
-- [ ] Escrever testes do módulo de Atendimentos, incluindo o ENUM fechado de `service_type` (`RF-004`) — ver `tests.md` §2.4.
-- [ ] Criar módulo de Histórico de Atendimentos até os testes passarem.
-- [ ] Escrever testes do serviço de importação de Excel, incluindo o tratamento de CPF duplicado (sobrescrever/ignorar, linha a linha ou em massa) — ver `tests.md` §2.5.
-- [ ] Criar serviço de importação de planilhas Excel (`RF-007`) com a interface de escolha de tratamento de duplicados até os testes passarem.
+- [x] Escrever testes do endpoint de Busca Avançada (filtros combinados, paginação, ordenação padrão) — ver `tests.md` §2.3.
+- [x] Criar endpoint de Busca Avançada combinada com paginação (`RF-005`) até os testes passarem.
+- [x] Otimizar queries com índices no PostgreSQL e validar com teste de performance (`RNF-001`, `tests.md` §2.3).
+- [x] Criar tela de Busca com Filtros Avançados e Tabela Dinâmica no Angular, com testes unitários e E2E.
+- [x] Escrever testes do fluxo de reutilização de cadastro por CPF (sugerir/aceitar/recusar/editar) — RF-006, ver `tests.md` §2.4.
+- [x] Implementar sugestão automática de cadastro existente ao iniciar atendimento até os testes passarem.
 
 
 
-## Fase 5: Segurança (LGPD) e Refinamento
+## Fase 4: Atendimentos e Importação de Excel ✅ (concluída)
 
-- [ ] Escrever testes do módulo de auditoria (`audit_logs`), incluindo o job de expurgo de logs com mais de 3 meses (RNF-005).
-- [ ] Implementar trilha de auditoria e job de expurgo até os testes passarem.
-- [ ] Escrever testes do job de anonimização de cadastros inativos há mais de 1 ano (RNF-006).
-- [ ] Implementar job de anonimização/retenção de dados até os testes passarem.
-- [ ] Aplicar criptografia para os demais campos sensíveis pendentes (`RNF-003`).
-- [ ] Testes de carga (RNF-001) e testes de segurança (dependências, payloads) — ver `tests.md` §6.
-- [ ] Validação geral do sistema e revisão de cobertura de testes (mínimo de 90%, ver `tests.md` §6).
+- [x] Escrever testes do módulo de Atendimentos, incluindo o ENUM fechado de `service_type` (`RF-004`) — ver `tests.md` §2.4.
+- [x] Criar módulo de Histórico de Atendimentos até os testes passarem.
+- [x] Escrever testes do serviço de importação de Excel, incluindo o tratamento de CPF duplicado (sobrescrever/ignorar, linha a linha ou em massa) — ver `tests.md` §2.5.
+- [x] Criar serviço de importação de planilhas Excel (`RF-007`) com a interface de escolha de tratamento de duplicados até os testes passarem.
+
+
+
+## Fase 5: Segurança (LGPD) e Refinamento ✅ (concluída)
+
+- [x] Escrever testes do módulo de auditoria (`audit_logs`), incluindo o job de expurgo de logs com mais de 3 meses (RNF-005).
+- [x] Implementar trilha de auditoria e job de expurgo até os testes passarem.
+- [x] Escrever testes do job de anonimização de cadastros inativos há mais de 1 ano (RNF-006).
+- [x] Implementar job de anonimização/retenção de dados até os testes passarem.
+- [x] Aplicar criptografia para os demais campos sensíveis pendentes (`RNF-003`).
+- [x] Testes de carga (RNF-001) e testes de segurança (dependências, payloads) — ver `tests.md` §6.
+- [x] Validação geral do sistema e revisão de cobertura de testes (mínimo de 90%, ver `tests.md` §6).
+- [x] Permitir a visualização de todos os dados do cidadão em um card/modal ao clicar em seu nome nas listas de cidadãos e atendimentos.
 
 
 

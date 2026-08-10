@@ -115,7 +115,7 @@ model SocialProfile {
   id                   String         @id @default(uuid())
   citizenId            String         @unique @map("citizen_id")
   nis                  String?        @unique
-  perCapitaIncome      Decimal?       @map("per_capita_income") @db.Decimal(10, 2)
+  perCapitaIncome      String?        @map("per_capita_income")
   housingStatus        HousingStatus? @map("housing_status")
   familyMembersCount   Int?           @map("family_members_count")
   receivesBolsaFamilia Boolean        @default(false) @map("receives_bolsa_familia")

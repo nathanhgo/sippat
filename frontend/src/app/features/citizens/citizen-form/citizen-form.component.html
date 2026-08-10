@@ -1,0 +1,283 @@
+<div class="min-h-screen bg-slate-50 p-6 font-sans">
+  <div class="max-w-4xl mx-auto flex flex-col gap-6">
+    
+    <!-- Top Header -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">
+          {{ citizenId ? 'Editar Cadastro de Cidadão' : 'Novo Cadastro de Cidadão' }}
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+          Preencha as abas com os dados do cidadão atendido
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button mat-stroked-button type="button" routerLink="/citizens">Cancelar</button>
+        <button 
+          mat-flat-button 
+          color="primary" 
+          type="button" 
+          (click)="onSubmit()" 
+          [disabled]="!citizenForm.dirty || isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            <mat-spinner diameter="18"></mat-spinner>
+            <span>Salvando...</span>
+          } @else {
+            <mat-icon>save</mat-icon>
+            <span>Salvar Cadastro</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    @if (errorMessage()) {
+      <div class="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-3">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="flex items-center justify-center p-12">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      <!-- Main Content Card -->
+      <mat-card class="bg-white shadow-sm border border-slate-200 rounded-lg">
+        <form [formGroup]="citizenForm" class="flex flex-col">
+          
+          <mat-tab-group animationDuration="200ms" class="min-h-[400px]">
+            
+            <!-- Tab 1: Dados Básicos -->
+            <mat-tab label="Dados Básicos">
+              <div class="p-6 flex flex-col gap-5">
+                
+                <!-- Row 1: CPF, RG, Birth Date -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>CPF</mat-label>
+                    <input matInput type="text" formControlName="cpf" placeholder="000.000.000-00" required>
+                    @if (citizenForm.get('cpf')?.enabled && citizenForm.get('cpf')?.hasError('required') && citizenForm.get('cpf')?.touched) {
+                      <mat-error>CPF é obrigatório</mat-error>
+                    }
+                    @if (citizenForm.get('cpf')?.enabled && citizenForm.get('cpf')?.hasError('invalidCpf') && citizenForm.get('cpf')?.touched) {
+                      <mat-error>Digite um CPF válido</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>RG</mat-label>
+                    <input matInput type="text" formControlName="rg" placeholder="Digite o RG">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Data de Nascimento</mat-label>
+                    <input matInput type="date" formControlName="birthDate" required>
+                    @if (citizenForm.get('birthDate')?.hasError('required') && citizenForm.get('birthDate')?.touched) {
+                      <mat-error>Data de nascimento é obrigatória</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <!-- Row 2: Full Name -->
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Nome Completo</mat-label>
+                  <input matInput type="text" formControlName="fullName" placeholder="Digite o nome completo" required>
+                  @if (citizenForm.get('fullName')?.hasError('required') && citizenForm.get('fullName')?.touched) {
+                    <mat-error>Nome completo é obrigatório</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Row 3: Gender, Race, Marital Status -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Gênero</mat-label>
+                    <mat-select formControlName="gender" required>
+                      @for (gender of genders; track gender.value) {
+                        <mat-option [value]="gender.value">{{ gender.label }}</mat-option>
+                      }
+                    </mat-select>
+                    @if (citizenForm.get('gender')?.hasError('required') && citizenForm.get('gender')?.touched) {
+                      <mat-error>Gênero é obrigatório</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Raça / Cor</mat-label>
+                    <mat-select formControlName="raceColor" required>
+                      @for (color of raceColors; track color.value) {
+                        <mat-option [value]="color.value">{{ color.label }}</mat-option>
+                      }
+                    </mat-select>
+                    @if (citizenForm.get('raceColor')?.hasError('required') && citizenForm.get('raceColor')?.touched) {
+                      <mat-error>Raça/cor é obrigatória</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Estado Civil</mat-label>
+                    <mat-select formControlName="maritalStatus" required>
+                      @for (status of maritalStatuses; track status.value) {
+                        <mat-option [value]="status.value">{{ status.label }}</mat-option>
+                      }
+                    </mat-select>
+                    @if (citizenForm.get('maritalStatus')?.hasError('required') && citizenForm.get('maritalStatus')?.touched) {
+                      <mat-error>Estado civil é obrigatório</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <!-- Row 4: Phone & Email -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Telefone para Contato</mat-label>
+                    <input matInput type="text" formControlName="phone" placeholder="(12) 99999-9999">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>E-mail</mat-label>
+                    <input matInput type="email" formControlName="email" placeholder="cidade@exemplo.com">
+                    @if (citizenForm.get('email')?.hasError('email') && citizenForm.get('email')?.touched) {
+                      <mat-error>Digite um e-mail válido</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="border-t border-slate-100 my-2"></div>
+                <h3 class="text-sm font-semibold text-slate-700">Endereço</h3>
+
+                <!-- Row 5: Street, Number -->
+                <div class="grid grid-cols-3 gap-4">
+                  <mat-form-field appearance="outline" class="col-span-2 w-full">
+                    <mat-label>Logradouro / Rua</mat-label>
+                    <input matInput type="text" formControlName="addressStreet" placeholder="Ex: Av. Siqueira Campos">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="col-span-1 w-full">
+                    <mat-label>Número</mat-label>
+                    <input matInput type="text" formControlName="addressNumber" placeholder="Ex: 123">
+                  </mat-form-field>
+                </div>
+
+                <!-- Row 6: Neighborhood, ZipCode -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Bairro</mat-label>
+                    <input matInput type="text" formControlName="neighborhood" placeholder="Ex: Centro">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>CEP</mat-label>
+                    <input matInput type="text" formControlName="zipCode" placeholder="00000-000">
+                    @if (citizenForm.get('zipCode')?.hasError('invalidCep') && citizenForm.get('zipCode')?.touched) {
+                      <mat-error>CEP inválido</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+              </div>
+            </mat-tab>
+            
+            <!-- Tab 2: Perfil Socioeconômico -->
+            <mat-tab label="Perfil Socioeconômico">
+              <div [formGroupName]="'socialProfile'" class="p-6 flex flex-col gap-5">
+                
+                <!-- Row 1: NIS & Renda -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>CadÚnico / NIS</mat-label>
+                    <input matInput type="text" formControlName="nis" placeholder="Digite o NIS">
+                    @if (citizenForm.get('socialProfile.nis')?.hasError('invalidNis') && citizenForm.get('socialProfile.nis')?.touched) {
+                      <mat-error>NIS inválido</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Renda Per Capita (R$)</mat-label>
+                    <input matInput type="number" formControlName="perCapitaIncome" placeholder="Ex: 650.00">
+                  </mat-form-field>
+                </div>
+
+                <!-- Row 2: Housing & Family members -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Status de Moradia</mat-label>
+                    <mat-select formControlName="housingStatus">
+                      @for (status of housingStatuses; track status.value) {
+                        <mat-option [value]="status.value">{{ status.label }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Membros na Composição Familiar</mat-label>
+                    <input matInput type="number" formControlName="familyMembersCount" placeholder="Ex: 4">
+                  </mat-form-field>
+                </div>
+
+                <!-- Row 3: Benefits Checks -->
+                <div class="flex flex-col md:flex-row gap-6 mt-2">
+                  <mat-checkbox formControlName="receivesBolsaFamilia" color="primary">
+                    Recebe Bolsa Família
+                  </mat-checkbox>
+                  
+                  <mat-checkbox formControlName="receivesBpc" color="primary">
+                    Recebe BPC (Benefício de Prestação Continuada)
+                  </mat-checkbox>
+
+                  <mat-checkbox formControlName="isPcd" color="primary">
+                    Pessoa com Deficiência (PcD)
+                  </mat-checkbox>
+                </div>
+
+                <!-- Conditionally Show PCD Description -->
+                @if (citizenForm.get('socialProfile.isPcd')?.value) {
+                  <mat-form-field appearance="outline" class="w-full mt-2">
+                    <mat-label>Descrição da Deficiência (PcD)</mat-label>
+                    <textarea matInput formControlName="pcdDescription" rows="3" placeholder="Especifique a deficiência, CID ou necessidades de acessibilidade..."></textarea>
+                  </mat-form-field>
+                }
+
+              </div>
+            </mat-tab>
+
+            <!-- Tab 3: Perfil Profissional -->
+            <mat-tab label="Perfil Profissional">
+              <div [formGroupName]="'professionalProfile'" class="p-6 flex flex-col gap-5">
+                
+                <!-- Escolaridade -->
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Grau de Escolaridade</mat-label>
+                  <input matInput type="text" formControlName="educationLevel" placeholder="Ex: Ensino Médio Completo">
+                </mat-form-field>
+
+                <!-- Cursos -->
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Cursos de Capacitação</mat-label>
+                  <textarea matInput formControlName="courses" placeholder="Digite os cursos realizados..."></textarea>
+                </mat-form-field>
+
+                <!-- Áreas de interesse -->
+                <mat-form-field appearance="outline" class="w-full mt-2">
+                  <mat-label>Áreas de Interesse / Cargos desejados</mat-label>
+                  <input matInput type="text" formControlName="targetAreas" placeholder="Ex: Auxiliar Administrativo, Recepcionista">
+                </mat-form-field>
+
+                <!-- Experiências -->
+                <mat-form-field appearance="outline" class="w-full mt-2">
+                  <mat-label>Experiências Profissionais Anteriores</mat-label>
+                  <textarea matInput formControlName="experiences" rows="4" placeholder="Ex: Recepcionista na Empresa X (2 anos) - Atendimento ao cliente..."></textarea>
+                </mat-form-field>
+
+              </div>
+            </mat-tab>
+            
+          </mat-tab-group>
+
+        </form>
+      </mat-card>
+    }
+
+  </div>
+</div>

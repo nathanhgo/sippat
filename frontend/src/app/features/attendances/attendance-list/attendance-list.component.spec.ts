@@ -1,0 +1,84 @@
+import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { AttendanceListComponent } from './attendance-list.component';
+import { AttendancesService } from '../../../core/services/attendances.service';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { vi, describe, beforeEach, it, expect } from 'vitest';
+import { MatDialog } from '@angular/material/dialog';
+
+describe('AttendanceListComponent', () => {
+  let component: AttendanceListComponent;
+  let fixture: ComponentFixture<AttendanceListComponent>;
+  let attendancesServiceMock: any;
+
+  beforeEach(async () => {
+    attendancesServiceMock = {
+      findAll: vi.fn().mockReturnValue(of({ data: [], total: 0 })),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [AttendanceListComponent],
+      providers: [
+        { provide: AttendancesService, useValue: attendancesServiceMock },
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideAnimations(),
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AttendanceListComponent);
+    component = fixture.componentInstance;
+
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    vi.spyOn(dialog, 'open').mockReturnValue({} as any);
+
+    fixture.detectChanges();
+  });
+
+  it('should create the component', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('deve carregar atendimentos na inicialização', () => {
+    const mockResponse = {
+      data: [
+        { id: '1', serviceType: 'ORIENTACAO', citizen: { fullName: 'Maria' }, user: { name: 'João' } }
+      ],
+      total: 1
+    };
+
+    attendancesServiceMock.findAll.mockReturnValue(of(mockResponse));
+    component.loadAttendances();
+
+    expect(attendancesServiceMock.findAll).toHaveBeenCalled();
+    expect(component.attendances()).toEqual(mockResponse.data);
+    expect(component.totalAttendances()).toBe(1);
+  });
+
+  it('deve abrir o modal de detalhes do cidadão ao chamar viewCitizenDetails', () => {
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    component.viewCitizenDetails('1');
+    expect(dialog.open).toHaveBeenCalled();
+  });
+
+  it('deve abrir o modal de detalhes do atendimento ao chamar viewAttendanceDetails', () => {
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    component.viewAttendanceDetails({ id: '1', serviceType: 'ORIENTACAO' });
+    expect(dialog.open).toHaveBeenCalled();
+  });
+
+  it('deve reportar hasActiveFilters como false quando filtros estão limpos', () => {
+    component.clearAdvancedFilters();
+    expect(component.hasActiveFilters).toBe(false);
+  });
+
+  it('deve retornar o label correto para getServiceTypeLabel', () => {
+    expect(component.getServiceTypeLabel('ORIENTACAO')).toBe('Orientação');
+    expect(component.getServiceTypeLabel('ENCAMINHAMENTO')).toBe('Encaminhamento');
+    expect(component.getServiceTypeLabel('')).toBe('Todos');
+  });
+});

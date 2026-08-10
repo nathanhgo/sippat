@@ -1,0 +1,163 @@
+<div class="dialog-container bg-slate-50 text-slate-800 flex flex-col h-[80vh] max-h-[750px] w-[90vw] max-w-[750px] overflow-hidden rounded-xl shadow-2xl">
+  
+  <!-- Header -->
+  <div class="flex items-center justify-between bg-white border-b border-slate-200 px-6 py-4">
+    <div class="flex items-center gap-3">
+      <div class="h-10 w-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold">
+        <mat-icon>assignment</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-slate-800 leading-tight">
+          Detalhes do Atendimento
+        </h2>
+        <p class="text-xs text-slate-500 font-mono mt-0.5">
+          ID: <span class="select-all bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-bold border border-slate-200">{{ attendance()?.id || 'Carregando...' }}</span>
+        </p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="close()" class="text-slate-400 hover:text-slate-600">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Body Content -->
+  <div class="flex-1 overflow-y-auto p-6 space-y-6">
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center h-64 gap-3">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span class="text-sm text-slate-500">Buscando dados do atendimento...</span>
+      </div>
+    } @else {
+      
+      <!-- Top Banner Summary -->
+      <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-5 rounded-xl shadow-md flex items-center justify-between">
+        <div class="space-y-1">
+          <span class="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Tipo de Serviço</span>
+          <div class="flex items-center gap-2">
+            <span class="text-lg font-bold">{{ attendance()?.serviceType }}</span>
+          </div>
+        </div>
+        <div class="text-right space-y-1">
+          <span class="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Data e Hora de Registro</span>
+          <p class="text-sm font-mono font-medium text-slate-200">
+            {{ attendance()?.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Info Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Cidadão Card -->
+        <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <h3 class="text-sm font-semibold text-indigo-700 flex items-center gap-2">
+              <mat-icon class="scale-90">person</mat-icon>
+              Cidadão Atendido
+            </h3>
+            @if (attendance()?.citizen?.id) {
+              <button 
+                mat-button 
+                color="primary" 
+                class="!text-xs !h-7 !px-2"
+                (click)="openCitizenDetails(attendance()?.citizen?.id)"
+              >
+                Ver Perfil
+              </button>
+            }
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div>
+              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Nome Completo</span>
+              @if (attendance()?.citizen?.id) {
+                <button 
+                  (click)="openCitizenDetails(attendance()?.citizen?.id)"
+                  class="text-left text-indigo-600 hover:text-indigo-800 font-bold hover:underline focus:outline-none transition-colors"
+                >
+                  {{ attendance()?.citizen?.fullName }}
+                </button>
+              } @else {
+                <span class="text-slate-700 font-medium">{{ attendance()?.citizen?.fullName || 'Não informado' }}</span>
+              }
+            </div>
+
+            <div>
+              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">CPF</span>
+              <span class="font-mono text-slate-700 font-medium">
+                {{ formatCpf(attendance()?.citizen?.cpf) || 'Não informado' }}
+              </span>
+            </div>
+
+            @if (attendance()?.citizen?.phone) {
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Telefone de Contato</span>
+                <span class="text-slate-700 font-medium">{{ attendance()?.citizen?.phone }}</span>
+              </div>
+            }
+
+            @if (attendance()?.citizen?.email) {
+              <div>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">E-mail</span>
+                <span class="text-slate-700 font-medium break-all">{{ attendance()?.citizen?.email }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Atendente Card -->
+        <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-semibold text-indigo-700 flex items-center gap-2 border-b border-slate-100 pb-2">
+            <mat-icon class="scale-90">badge</mat-icon>
+            Funcionário Responsável
+          </h3>
+
+          <div class="space-y-3 text-sm">
+            <div>
+              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Nome do Atendente</span>
+              <span class="text-slate-700 font-bold">{{ attendance()?.user?.name || 'Sistema automatizado' }}</span>
+            </div>
+
+            <div>
+              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">E-mail Corporativo</span>
+              <span class="text-slate-700 font-medium break-all">{{ attendance()?.user?.email || 'N/A' }}</span>
+            </div>
+
+            <div>
+              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Cargo / Perfil de Acesso</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 mt-0.5">
+                {{ attendance()?.user?.role || 'ATTENDANT' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Observações / Detalhamento -->
+      <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-3">
+        <h3 class="text-sm font-semibold text-indigo-700 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <mat-icon class="scale-90">notes</mat-icon>
+          Observações e Encaminhamentos
+        </h3>
+
+        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm text-slate-700 leading-relaxed font-sans min-h-[100px] whitespace-pre-wrap">
+          {{ attendance()?.notes || 'Nenhuma observação registrada neste atendimento.' }}
+        </div>
+      </div>
+
+    }
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between">
+    <div class="text-xs text-slate-400 flex items-center gap-1.5">
+      <mat-icon class="scale-75 text-slate-400">shield</mat-icon>
+      <span>Registro auditado em conformidade com a LGPD</span>
+    </div>
+    <button mat-flat-button color="primary" (click)="close()">
+      <span>Fechar</span>
+    </button>
+  </div>
+
+</div>
