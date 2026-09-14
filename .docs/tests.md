@@ -31,40 +31,32 @@
 - Deve rejeitar requisições com token JWT ausente, inválido ou expirado (401).
 
 ### 2.2 Módulo `citizens` (RF-001, RF-002, RF-003, RNF-002, RNF-003)
-- Deve criar um cidadão com todos os dados obrigatórios válidos, incluindo Gênero, Raça/Cor e Estado Civil.
-- Deve rejeitar a criação de um cidadão sem Gênero, Raça/Cor ou Estado Civil informados (campos obrigatórios — RF-001).
-- Deve rejeitar CPF com dígito verificador inválido.
-- Deve rejeitar CPF duplicado (já existente na base).
-- Deve rejeitar NIS inválido ou duplicado.
-- Deve rejeitar CEP em formato inválido.
-- Deve rejeitar e-mail em formato inválido.
-- Deve atualizar um cadastro existente sem duplicar registro nem apagar histórico de atendimentos.
+- Deve criar um cidadão com o núcleo essencial válido (CPF, Nascimento, Gênero, Telefone e Bairro).
+- Deve rejeitar CPF com dígito verificador inválido ou duplicado.
+- Deve salvar e validar indicador de PcD e o respectivo CID da Deficiência quando informado (`disability_cid`).
+- Deve registrar programas sociais recebidos (`social_programs`, ex: Bolsa Família, BPC).
+- Deve registrar o público prioritário para políticas públicas (`priority_group`, ex: Mulheres vítimas de violência, População em situação de rua).
 - Deve criptografar os campos sensíveis de `social_profiles` antes de persistir, e descriptografá-los corretamente na leitura (RNF-003).
 
 ### 2.3 Módulo `search` (RF-005, RNF-001)
 - Deve filtrar cidadãos por bairro.
-- Deve filtrar cidadãos por faixa de renda per capita.
 - Deve filtrar cidadãos por nível de escolaridade.
-- Deve filtrar cidadãos por PcD.
-- Deve combinar múltiplos filtros simultaneamente (ex: bairro + faixa etária + PcD).
+- Deve filtrar cidadãos por PcD e por público prioritário para políticas públicas.
+- Deve combinar múltiplos filtros simultaneamente.
 - Deve paginar corretamente os resultados (parâmetros de página/limite).
-- **Teste de performance (RNF-001):** busca com filtros combinados em base populada com um volume representativo (ex: 50.000 registros) deve responder em até **1,5s**. Executado separadamente do pipeline unitário padrão (job de performance no CI ou execução manual).
+- **Teste de performance (RNF-001):** busca com filtros combinados em base populada com um volume representativo (ex: 50.000 registros) deve responder em até **1,5s**.
 
-### 2.4 Módulo `attendances` (RF-004, RF-006)
-- Deve registrar um atendimento vinculado a um cidadão e um funcionário existentes, com `service_type` dentre os valores fechados do ENUM.
-- Deve rejeitar atendimento com `service_type` fora da lista de valores permitidos.
-- Deve rejeitar atendimento referenciando `citizen_id` ou `user_id` inexistente.
-- Deve listar o histórico de atendimentos de um cidadão ordenado por data decrescente.
+### 2.4 Módulo `attendances` (RF-004, RF-006, RF-009)
+- Deve registrar um atendimento vinculado a um cidadão e um funcionário, com `service_type` (ENUM).
+- **Nova Seção do Atendimento:** deve persistir e retornar os dados do técnico responsável (`technician_name`, `technician_workplace` e `technician_contact`).
+- Deve listar o histórico de atendimentos ordenado por data decrescente contendo os dados do técnico.
 - Ao informar um CPF já cadastrado, deve sugerir automaticamente o carregamento do cadastro existente (RF-006).
-- Deve permitir aceitar o cadastro sugerido, recusá-lo (criando um novo do zero) ou editar campos específicos antes de salvar (RF-006).
 
 ### 2.5 Módulo `import` (RF-007)
-- Deve importar uma planilha Excel válida e criar os registros correspondentes de cidadãos.
-- Deve reportar, sem interromper a importação total, as linhas com erro de validação (CPF inválido, campo obrigatório ausente).
-- Deve, ao encontrar CPF duplicado, respeitar a opção escolhida pelo usuário: **sobrescrever** ou **ignorar** a linha.
-- Deve aplicar a decisão de duplicado individualmente quando o modo for "linha a linha".
-- Deve aplicar a mesma decisão a todos os duplicados quando o modo for "em massa".
-- Deve gerar um relatório final de importação (linhas importadas com sucesso, sobrescritas, ignoradas e com erro, com motivo).
+- **Parser de `files/formulario.xlsx`:** deve processar arquivo de formulário multi-abas (ex: `Mulheres`, `POP`), estruturado conforme `files/formulario.pdf`, extrair dados cadastrais, deficiências com CID, público prioritário correspondente e os dados do técnico preenchedor.
+- **Parser de `files/atendimento.xlsx`:** deve ler planilha legada de atendimentos, extraindo data, encaminhamentos a entrevistas, função desejada, observações e dados do encaminhador.
+- Deve, ao encontrar CPF duplicado, respeitar a opção escolhida pelo usuário: **sobrescrever** ou **ignorar** a linha (individualmente ou em massa).
+- Deve gerar relatório consolidado de importação com linhas processadas, erros e status de cada registro.
 
 ### 2.6 Módulo `audit` (RNF-005)
 - Deve registrar uma entrada de log ao criar, ler, editar ou exportar dados sensíveis de um cidadão, com usuário responsável e timestamp.
@@ -86,9 +78,11 @@
 
 ## 4. Frontend — Testes Unitários
 
-- Formulário de cadastro: validação reativa de CPF, NIS, CEP e e-mail em tempo real, com feedback visual imediato (RNF-002, RNF-004).
-- Formulário de cadastro: campos obrigatórios de Gênero, Raça/Cor e Estado Civil bloqueiam o envio quando não preenchidos.
-- Tabela de busca: renderização correta das colunas e navegação por atalhos de teclado, conforme `visual.md`.
+- Formulário de cadastro: validação reativa de CPF e formatos de telefone/data em tempo real, com feedback visual imediato (RNF-002, RNF-004).
+- Formulário de cadastro: campos obrigatórios (Nome Completo, CPF, Data de Nascimento, Gênero) bloqueiam o envio quando não preenchidos.
+- Tabela e modais de cidadão: renderização correta do badge de **Público Prioritário ao lado do nome da pessoa** (RF-002, RF-008).
+- Formulário e modal de atendimento: exibição e persistência da **Nova Seção do Atendimento** com dados do técnico (RF-004, RF-009).
+- Tabela de busca: navegação fluida por atalhos de teclado e densidade de informação estilo planilha (RNF-004).
 - Serviços Angular (`HttpClient`): tratamento correto de respostas de sucesso e de erro (incluindo timeout e 401 → redirecionar para login).
 - Guards de rota: bloqueio de acesso a rotas protegidas sem autenticação/perfil adequado.
 

@@ -2,6 +2,6 @@
 
 - **Tema:** Limpo, institucional e profissional (Cores da Prefeitura de Jacareí: Azul Institucional, Cinza Claro, Branco e Destaques em Verde para Status).
 - **Inspirado em Planilhas (RNF-004):** Tabela principal de busca compacta, densa em informações, com opção de navegar por atalhos ou abrir modal lateral de detalhes rápidos do cidadão.
-- **Componentes:** Tabelas dinâmicas com navegação por teclado e modal lateral de detalhes rápidos do cidadão.
-
-> **Nota:** os Badges de Status de Vulnerabilidade foram removidos desta versão, pois o Mapeamento de Vulnerabilidade saiu do escopo atual (ver `questions.md` #5-7). Reavaliar componente visual caso a feature retorne futuramente.
+- **Componentes:** Tabelas dinâmicas com navegação por teclado e modais de detalhes rápidos de cidadãos e atendimentos.
+- **Destaque de Público Prioritário (RF-002):** A informação de *Público prioritário para políticas públicas* (ex: "Mulheres vítimas de violência", "População em situação de rua - POP") **deve ser exibida visualmente ao lado do nome da pessoa** em formato de chip/badge destacado (com cor institucional de fácil leitura), tanto na tabela de cidadãos quanto no cabeçalho do modal de detalhes e no histórico de atendimentos.
+- **Nova Seção do Atendimento (Dados do Técnico - RF-004, RF-009):** Card dedicado com divisão visual clara para os dados do técnico que realizou/registrou o atendimento (Nome do técnico, Local de trabalho e Contato), garantindo rastreabilidade intersetorial (ex: encaminhamentos de CREAS, CRAS e ONGs).

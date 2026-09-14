@@ -74,6 +74,23 @@
 
 
 
+## Fase 6: Adaptação de Requisitos, Formulários e Nova Seção de Atendimento 📋 (planejada)
+
+- [ ] Criar nova migration Prisma com os campos atualizados:
+  - `social_profiles`: `social_programs` e `disability_cid` (CID da Deficiência quando `is_pcd = true`).
+  - `professional_profiles`: `priority_group` (Público prioritário para políticas públicas).
+  - `attendances`: `technician_name`, `technician_workplace` e `technician_contact` (Nova Seção do Atendimento).
+- [ ] Atualizar DTOs, mappers e testes unitários do backend (`citizens`, `attendances`).
+- [ ] Implementar e testar parser de normalização para a planilha `files/formulario.xlsx` (baseada no formulário oficial `files/formulario.pdf`, com abas por público: `Mulheres`, `POP`, etc.).
+- [ ] Implementar e testar parser de normalização para a planilha `files/atendimento.xlsx` (histórico de encaminhamentos a vagas e entrevistas).
+- [ ] Atualizar interface no Angular:
+  - Exibir badge destacado de **Público Prioritário ao lado do nome da pessoa** (tabela de busca, cards, modais).
+  - Adicionar a **Nova Seção do Atendimento** no formulário e no modal de detalhes do atendimento com os dados do técnico.
+  - Ajustar tela de importação para suportar o carregamento das duas planilhas com resolução de duplicados.
+- [ ] Rodar suíte de testes completa (TDD) e validar cobertura ≥ 90%.
+
+
+
 ## Backlog (fora do escopo atual)
 
-- [ ] Mapeamento de Vulnerabilidade (algoritmo de pontuação socioeconômica) — removido do escopo por decisão em reunião (ver `questions.md` #5-7). Reavaliar em fase futura.
+- [ ] Estudo de viabilidade de versão 100% local (Desktop / Offline-first via Tauri/Electron/bundle local) — em discussão pela equipe (não oficial).

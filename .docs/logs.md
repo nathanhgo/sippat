@@ -182,3 +182,35 @@
 - Adicionados **RF-008** (Visualização de Detalhes do Cidadão), **RF-009** (Visualização de Detalhes do Atendimento), **RF-010** (Exclusão de Cidadão com Confirmação), **RF-011** (Edição de Cadastro do Cidadão) e **RF-012** (Busca Avançada de Atendimentos).
 - Refinadas as descrições de **RF-004**, **RF-005**, e dos RNFs **RNF-002**, **RNF-003**, **RNF-004**, **RNF-005** e **RNF-006** para refletir os comportamentos implementados.
 - Adicionado **RNF-007** (Integridade dos Dados) para formalizar a exigência de CPFs/NISs matematicamente válidos nos dados de carga e documentação.
+
+## 2026-09-14 — Atualização Global de Requisitos e Alinhamento de Planilhas
+- Analisados os arquivos reais de dados: `formulario.xlsx` (respostas do Google Forms com abas por público: `Sheet1`, `Mulheres`, `POP`) e `atendimento.xlsx` (histórico de encaminhamentos para vagas/entrevistas).
+- Atualizado o núcleo prioritário de **Dados Básicos do Cidadão** (RF-001): CPF, Data de Nascimento, Gênero, Telefone e Bairro.
+- Atualizados os **Indicadores Socioeconômicos** (RF-003): adicionados Programas Sociais (`social_programs`), indicador `is_pcd` e CID da Deficiência (`disability_cid`).
+- Atualizado o **Perfil Profissional** (RF-002): adicionado **Público Prioritário para Políticas Públicas** (`priority_group`), com exigência visual estrita de posicionamento **ao lado do nome da pessoa** em listagens e modais (`visual.md`).
+- Criada a **Nova Seção do Atendimento** (RF-004, RF-009): incorporação dos dados do técnico responsável (Nome do técnico, Local de trabalho do técnico e Contato do técnico — telefone/e-mail), refletindo os encaminhamentos intersetoriais de CREAS, CRAS e ONGs.
+- Atualizado o módulo de **Importação** (RF-007): especificada a capacidade e a normalização para leitura de ambas as planilhas (`formulario.xlsx` e `atendimento.xlsx`).
+- Registrada nota técnica sobre o estudo de viabilidade para execução **100% local (desktop/offline-first)**, com status de **em discussão / não oficial**.
+- Propagadas as alterações em toda a documentação: `idea.md`, `requirements.md`, `database_schema.md`, `architecture.md`, `tech_stack.md`, `visual.md`, `questions.md`, `tests.md` e criada a **Fase 6** no `to_do.md`.
+
+## 2026-09-14 — Remoção e Limpeza Geral de Itens Descontinuados
+- Removidos de toda a documentação (`requirements.md`, `database_schema.md`, `architecture.md`, `visual.md`, `tests.md`, `to_do.md`, `questions.md`, `idea.md`) todos os campos e elementos que não serão utilizados:
+  - **Dados Básicos do Cidadão:** removidos RG, Raça/Cor, Estado Civil, E-mail, CEP, Rua e Número (mantidos estritamente: Nome Completo, CPF, Data de Nascimento, Gênero, Telefone e Bairro).
+  - **Indicadores Socioeconômicos:** removidos NIS/CadÚnico, Renda per capita, Status de Moradia, Composição Familiar, campos booleanos isolados de Bolsa Família/BPC e `pcd_description` (mantidos estritamente: Programas Sociais, Se é PcD e CID da Deficiência).
+  - **Busca Avançada:** removido filtro por Faixa de Renda.
+  - **Algoritmo de Vulnerabilidade:** removidas todas as menções e notas residuais sobre pontuação de vulnerabilidade (`vulnerability_score`), inclusive do backlog.
+  - **Planilhas:** descontinuada a planilha fictícia de testes `planilha_teste_sippat.xlsx` em favor das planilhas operacionais reais `formulario.xlsx` e `atendimento.xlsx`.
+- Documentação sincronizada e estritamente restrita aos elementos ativos.
+
+## 2026-09-14 — Integração do Formulário Oficial (formulario.pdf) e Pasta files/
+- Analisado o arquivo `files/formulario.pdf` (*Formulário de Aptidão e Perfil Profissional - Programa de Inclusão Produtiva e Reinserção no Mercado de Trabalho*), consolidando a estrutura de 7 seções do questionário original.
+- Mapeadas as listas fechadas e opções exatas do formulário em `database_schema.md`:
+  - **Público Prioritário (Pergunta 20):** 11 opções oficiais (Fluxo Municipal da Mulher, PcD, TEA, CAPS AD/II, CRAS, CREAS, Centro POP, Casa do Abraço, Jovem Aprendiz > 18 anos, Outra).
+  - **Escolaridade (Pergunta 21):** 7 níveis formais (Fundamental inc/comp, Médio inc/comp, Técnico, Superior inc/comp).
+  - **Áreas de interesse de trabalho (Pergunta 29):** 8 opções temáticas.
+  - **Áreas de interesse para cursos (Pergunta 25):** 11 opções de capacitação.
+  - **Experiências (Perguntas 26-31):** carteira assinada, tempo na última ocupação (< 6 meses / ≥ 6 meses), autônomo.
+  - **Nova Seção do Atendimento (Perguntas 45-47):** nome do técnico, local de trabalho e contato.
+- Atualizados todos os caminhos da documentação para apontar para a pasta `files/` (`files/formulario.pdf`, `files/formulario.xlsx`, `files/atendimento.xlsx`).
+- Adicionadas regras ao `.gitignore` (`files/`, `*.xlsx`, `*.xls`) para blindar dados sensíveis de cidadãos e técnicos, impedindo seu versionamento para o GitHub (LGPD).
+

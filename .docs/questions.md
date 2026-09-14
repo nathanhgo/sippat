@@ -18,16 +18,8 @@ Resposta: Todo cadastro é criado diretamente por um atendente autenticado
 4. **Reutilização de Cadastro (RF-007):** Ao iniciar um novo atendimento, o sistema deve buscar automaticamente pelo CPF e sugerir o carregamento do cadastro existente, ou o atendente decide manualmente pesquisar antes?
 Resposta: Sugerir o carregamento do cadastro existente, mas deve ser possível ao atendente recusar ou usar uma versão editada disso (ex: caso uma pessoa a ser atendida tenha um cadastro antigo com um telefone antigo, que agora usa outro)
 
-## 2. Algoritmo de Vulnerabilidade (RF-006)
-
-5. **Pesos e Metodologia:** Quais os pesos/percentuais exatos de cada critério no cálculo do `vulnerability_score` (renda per capita, moradia, PcD, benefícios sociais)? Existe uma metodologia oficial de referência (ex: critérios do CadÚnico/CRAS) a ser seguida, ou a pontuação será definida empiricamente pela equipe do PAT?
-Resposta: Em reunião decidimos remover essa feature de score de vulnerabilidade por enquanto, remova dos documentos (requirements, to_do, etc.)
-
-6. **Gatilho de Recálculo:** O `vulnerability_score` deve ser recalculado apenas quando o `social_profile` é editado manualmente, ou também de forma automática/periódica (ex: idade do cidadão muda a elegibilidade a um benefício, tempo sem atendimento aumenta a prioridade)?
-Resposta: Em reunião decidimos remover essa feature de score de vulnerabilidade por enquanto, remova dos documentos (requirements, to_do, etc.)
-
-7. **Histórico de Pontuação:** É necessário manter um histórico da evolução do `vulnerability_score` ao longo do tempo (para relatórios/análises), ou basta armazenar sempre o valor mais recente?
-Resposta: Em reunião decidimos remover essa feature de score de vulnerabilidade por enquanto, remova dos documentos (requirements, to_do, etc.)
+## 2. Algoritmo de Vulnerabilidade
+- **Decisão:** O cálculo de pontuação de vulnerabilidade social foi **descartado e removido** do sistema por decisão de projeto. Não será implementado.
 
 ## 3. LGPD e Segurança
 
@@ -48,8 +40,8 @@ Resposta: Ele deve permitir o cadastro, mas como ele será realizado pelo atende
 12. **Tratamento de Duplicados na Importação:** Ao importar uma planilha Excel legada com um CPF que já existe na base, o sistema deve sobrescrever os dados, ignorar a linha, ou pedir confirmação manual linha a linha?
 Resposta: De as duas opções para o usuário, para ele Sobrescrever ou igonorar, com a possibilidade de fazer isso linha a linha ou em massa (mesma decisão pra todos)
 
-13. **Campos Adicionais:** Campos comuns em programas sociais/CadÚnico como Gênero, Raça/Cor e Estado Civil devem ser capturados no cadastro (atualmente ausentes em `citizens`/`social_profiles`)?
-Resposta: Devem ser capturados de forma obrigatório
+13. **Campos Adicionais:** Campos como Gênero, Raça/Cor e Estado Civil devem ser capturados no cadastro?
+Resposta: Gênero é mantido no núcleo básico. Raça/Cor e Estado Civil foram descartados na simplificação de requisitos (ver Seção 7).
 
 ## 5. Técnico e Infraestrutura
 
@@ -77,3 +69,29 @@ Resposta: Perfeito, gostei da ideia do log de auditoria
 Observações gerais (criadas pelo responsável):
 - Vamos desconsiderar o ESLint por enquanto, por ser um projeto simples, não há a necessidade de um Linter
 - Vamos trocar o Jest por Vitests, é uma tecnologia que nossos desenvolvedores já estão mais acostumados
+
+## 7. Atualização de Requisitos (Ciclo 2 - Formulários, Públicos Prioritários e Nova Seção do Atendimento)
+
+16. **Priorização de Dados Básicos do Cidadão:** Quais dados compõem o núcleo essencial do cadastro?
+    - **Decisão:** O cadastro é composto estritamente por: **Nome Completo, CPF, Data de Nascimento, Gênero, Telefone e Bairro**. Campos adicionais como RG, Estado Civil, Raça/Cor, Endereço completo e E-mail foram descartados do escopo ativo.
+
+17. **Ajustes nos Indicadores Socioeconômicos:** Quais campos devem ser adicionados para refletir os formulários de assistência social?
+    - **Decisão:** Capturar explicitamente: (1) **Programas Sociais** (benefícios socioassistenciais recebidos, como Bolsa Família, BPC); (2) **Se é PcD** (booleano); e (3) **CID da Deficiência** (código informado quando PcD for positivo).
+
+18. **Público Prioritário para Políticas Públicas e Padrão Visual:** Onde essa classificação deve residir e como deve ser exibida?
+    - **Decisão:** O campo reside no perfil profissional (`priority_group`) utilizando as opções oficiais extraídas de `files/formulario.pdf` (Pergunta 20: Fluxo Municipal da Mulher, PCD, TEA, CAPS AD/II, CRAS, CREAS, Centro POP, Casa do Abraço, Jovem Aprendiz >18 anos, Outra). Deve ser exibido obrigatoriamente **ao lado do nome da pessoa** em formato de badge/chip em todas as listagens, cabeçalhos de perfil e históricos.
+
+19. **Nova Seção do Atendimento (Dados do Técnico):** Quais novos campos devem constar no registro do atendimento para rastrear encaminhamentos intersetoriais?
+    - **Decisão:** Os últimos campos da planilha de formulário foram incorporados como nova seção do atendimento:
+      - **Nome do técnico responsável pelo atendimento**
+      - **Local de trabalho do técnico** (ex: CREAS I, CRAS, Ong Recomeçar, PAT)
+      - **Contato do técnico** (telefone ou e-mail corporativo)
+
+20. **Importação e Normalização das Duas Planilhas:** O sistema deve ser capaz de importar quais arquivos específicos e onde residem?
+    - **Decisão:** Os arquivos residem na pasta `files/` e o módulo de importação deve suportar:
+      - `files/formulario.xlsx` (gerado a partir do formulário de inclusão produtiva `files/formulario.pdf`): Contém respostas estruturadas divididas por abas de públicos (`Mulheres`, `POP`), contendo dados pessoais, deficiências/CID, cursos, áreas de interesse e dados do técnico preenchedor.
+      - `files/atendimento.xlsx`: Contém histórico legado de atendimentos e encaminhamentos a entrevistas com datas, pareceres e bairros.
+      Ambas devem ser normalizadas e adaptadas para as tabelas relacionais do SIPPAT.
+
+21. **Aplicação 100% Local (Desktop):** O sistema deve se tornar um aplicativo desktop offline?
+    - **Decisão:** A possibilidade de rodar 100% local (modo desktop, sem servidor externo) está sendo discutida e avaliada tecnicamente, mas **ainda não é oficial**. O projeto permanece oficialmente em arquitetura web client-server até deliberação formal.

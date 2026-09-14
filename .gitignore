@@ -19,3 +19,8 @@ sippat_postgres_data/
 # OS / IDE
 .DS_Store
 .idea
+
+# Arquivos privados e dados sensíveis (LGPD)
+files/
+*.xlsx
+*.xls

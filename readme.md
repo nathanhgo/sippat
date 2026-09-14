@@ -50,7 +50,7 @@ Use estas credenciais para logar na tela inicial do sistema:
 | **Atendente (ATTENDANT)** | `atendente@sippat.jacarei.sp.gov.br` | `Attendant@123` |
 
 ### 👥 Dados Populados de Cidadãos
-* **João Silva de Souza** (CPF: `529.982.247-25` | NIS: `123.456.789-00`): Perfil completo com NIS e Renda Per Capita criptografados.
-* **Maria Aparecida Oliveira** (CPF: `912.384.750-60` | NIS: `234.567.890-13`): Perfil de PcD física contendo auxílio BPC ativo e descrição criptografada.
-* **Carlos Henrique dos Santos** (CPF: `123.456.789-09`): Cadastro básico com histórico socioeconômico sem NIS.
-* **Histórico de Atendimentos:** Registros vinculados de orientações e encaminhamentos para as vagas do PAT.
+* **João Silva de Souza** (CPF: `529.982.247-25`): Cadastro básico, Programas Sociais (Bolsa Família) e Bairro Centro.
+* **Maria Aparecida Oliveira** (CPF: `912.384.750-60`): Perfil PcD com CID informado, Programas Sociais (BPC) e Público Prioritário (Mulheres vítimas de violência).
+* **Carlos Henrique dos Santos** (CPF: `123.456.789-09`): Cadastro básico com perfil profissional e histórico de experiências.
+* **Histórico de Atendimentos:** Registros vinculados contendo a Nova Seção do Atendimento com dados do técnico responsável (Nome, Local de trabalho e Contato).
