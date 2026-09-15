@@ -22,30 +22,6 @@ enum Gender {
   NAO_DECLARADO
 }
 
-enum RaceColor {
-  BRANCA
-  PRETA
-  PARDA
-  AMARELA
-  INDIGENA
-  NAO_DECLARADO
-}
-
-enum MaritalStatus {
-  SOLTEIRO
-  CASADO
-  DIVORCIADO
-  VIUVO
-  UNIAO_ESTAVEL
-}
-
-enum HousingStatus {
-  OWN
-  RENTED
-  RISK_AREA
-  UNHOUSED
-}
-
 enum ServiceType {
   ENCAMINHAMENTO
   ORIENTACAO
@@ -82,23 +58,16 @@ model User {
 
 /// Cidadãos atendidos pelo PAT (RF-001)
 model Citizen {
-  id            String        @id @default(uuid())
-  cpf           String        @unique
-  rg            String?
-  fullName      String        @map("full_name")
-  birthDate     DateTime      @map("birth_date") @db.Date
-  gender        Gender
-  raceColor     RaceColor     @map("race_color")
-  maritalStatus MaritalStatus @map("marital_status")
-  phone         String?
-  email         String?
-  addressStreet String?       @map("address_street")
-  addressNumber String?       @map("address_number")
-  neighborhood  String?
-  zipCode       String?       @map("zip_code")
-  deletedAt     DateTime?     @map("deleted_at")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  id           String    @id @default(uuid())
+  fullName     String    @map("full_name")
+  cpf          String    @unique
+  birthDate    DateTime  @map("birth_date") @db.Date
+  gender       Gender
+  phone        String?
+  neighborhood String?
+  deletedAt    DateTime? @map("deleted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   socialProfile       SocialProfile?
   professionalProfile ProfessionalProfile?
@@ -110,20 +79,15 @@ model Citizen {
   @@map("citizens")
 }
 
-/// Indicadores socioeconômicos (RF-003) — campos sensíveis, sujeitos a criptografia (RNF-003, Fase 2)
+/// Indicadores socioeconômicos (RF-003)
 model SocialProfile {
-  id                   String         @id @default(uuid())
-  citizenId            String         @unique @map("citizen_id")
-  nis                  String?        @unique
-  perCapitaIncome      String?        @map("per_capita_income")
-  housingStatus        HousingStatus? @map("housing_status")
-  familyMembersCount   Int?           @map("family_members_count")
-  receivesBolsaFamilia Boolean        @default(false) @map("receives_bolsa_familia")
-  receivesBpc          Boolean        @default(false) @map("receives_bpc")
-  isPcd                Boolean        @default(false) @map("is_pcd")
-  pcdDescription       String?        @map("pcd_description")
-  createdAt            DateTime       @default(now()) @map("created_at")
-  updatedAt            DateTime       @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  citizenId      String   @unique @map("citizen_id")
+  socialPrograms String?  @map("social_programs")
+  isPcd          Boolean  @default(false) @map("is_pcd")
+  disabilityCid  String?  @map("disability_cid")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   citizen Citizen @relation(fields: [citizenId], references: [id], onDelete: Cascade)
 
@@ -134,10 +98,11 @@ model SocialProfile {
 model ProfessionalProfile {
   id             String   @id @default(uuid())
   citizenId      String   @unique @map("citizen_id")
+  priorityGroup  String?  @map("priority_group")
   educationLevel String?  @map("education_level")
+  targetAreas    Json?    @map("target_areas")
   courses        Json?
   experiences    Json?
-  targetAreas    Json?    @map("target_areas")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -146,15 +111,18 @@ model ProfessionalProfile {
   @@map("professional_profiles")
 }
 
-/// Histórico de atendimentos (RF-004)
+/// Histórico de atendimentos (RF-004, RF-009)
 model Attendance {
-  id          String      @id @default(uuid())
-  citizenId   String      @map("citizen_id")
-  userId      String      @map("user_id")
-  serviceType ServiceType @map("service_type")
-  notes       String?
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  id                  String      @id @default(uuid())
+  citizenId           String      @map("citizen_id")
+  userId              String      @map("user_id")
+  serviceType         ServiceType @map("service_type")
+  notes               String?
+  technicianName      String?     @map("technician_name")
+  technicianWorkplace String?     @map("technician_workplace")
+  technicianContact   String?     @map("technician_contact")
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
 
   citizen Citizen @relation(fields: [citizenId], references: [id], onDelete: Restrict)
   user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)

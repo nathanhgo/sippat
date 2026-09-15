@@ -48,13 +48,12 @@ export class CitizenListComponent implements OnInit {
   neighborhoodControl = new FormControl('');
   educationControl = new FormControl('');
   pcdControl = new FormControl('');
-  minIncomeControl = new FormControl<number | null>(null);
-  maxIncomeControl = new FormControl<number | null>(null);
+  priorityGroupControl = new FormControl('');
 
   currentPage = 1;
   pageSize = 10;
   
-  displayedColumns: string[] = ['fullName', 'cpf', 'nis', 'bolsaFamilia', 'actions'];
+  displayedColumns: string[] = ['fullName', 'cpf', 'neighborhood', 'pcd', 'actions'];
 
   constructor(
     private readonly citizensService: CitizensService,
@@ -88,18 +87,16 @@ export class CitizenListComponent implements OnInit {
     const search = this.searchControl.value || '';
     const neighborhood = this.neighborhoodControl.value || '';
     const educationLevel = this.educationControl.value || '';
+    const priorityGroup = this.priorityGroupControl.value || '';
     const pcdVal = this.pcdControl.value;
     const isPcd = pcdVal === 'true' ? true : pcdVal === 'false' ? false : undefined;
-    const minIncome = this.minIncomeControl.value !== null ? Number(this.minIncomeControl.value) : undefined;
-    const maxIncome = this.maxIncomeControl.value !== null ? Number(this.maxIncomeControl.value) : undefined;
     
     this.citizensService.findAll({
       search,
       neighborhood,
       educationLevel,
+      priorityGroup,
       isPcd,
-      minIncome,
-      maxIncome,
       page: this.currentPage,
       limit: this.pageSize
     }).subscribe({
@@ -123,8 +120,7 @@ export class CitizenListComponent implements OnInit {
     this.neighborhoodControl.setValue('');
     this.educationControl.setValue('');
     this.pcdControl.setValue('');
-    this.minIncomeControl.setValue(null);
-    this.maxIncomeControl.setValue(null);
+    this.priorityGroupControl.setValue('');
     this.currentPage = 1;
     this.loadCitizens();
   }

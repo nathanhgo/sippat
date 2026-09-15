@@ -58,18 +58,13 @@ export class DataRetentionService {
           data: {
             fullName: 'CIDADÃO ANONIMIZADO',
             cpf: anonymousCpf,
-            rg: null,
             phone: null,
-            email: null,
-            addressStreet: null,
-            addressNumber: null,
-            zipCode: null,
+            neighborhood: null,
             deletedAt: new Date(),
             socialProfile: {
               update: {
-                nis: null,
-                perCapitaIncome: null,
-                pcdDescription: null,
+                socialPrograms: null,
+                disabilityCid: null,
               },
             },
           },

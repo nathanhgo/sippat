@@ -4,8 +4,8 @@
     <!-- Top Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-slate-800">Importação de Planilha Excel</h1>
-        <p class="text-sm text-slate-500 mt-1">Importe cadastros de cidadãos e históricos a partir de planilhas Excel</p>
+        <h1 class="text-2xl font-bold text-slate-800">Importação de Planilhas Excel</h1>
+        <p class="text-sm text-slate-500 mt-1">Carregue formulários de inclusão produtiva (formulario.xlsx) ou histórico operacional (atendimento.xlsx)</p>
       </div>
       <button mat-stroked-button routerLink="/citizens">
         <mat-icon class="mr-1">arrow_back</mat-icon>
@@ -25,7 +25,12 @@
       @if (step() === 'select_file') {
         <mat-card class="bg-white p-8 shadow-sm border border-slate-200 rounded-lg">
           <h2 class="text-lg font-semibold text-slate-800 mb-2">Selecione o arquivo da planilha</h2>
-          <p class="text-sm text-slate-500 mb-6">A planilha deve conter as colunas de CPF, Nome, Data de Nascimento, Gênero, Raça/Cor e Estado Civil.</p>
+          <p class="text-sm text-slate-500 mb-6">
+            O sistema reconhece automaticamente:
+            <br>• <strong>Formulário Oficial de Inclusão Produtiva</strong> (ex: <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">formulario.xlsx</code> com abas por público: Mulheres, POP)
+            <br>• <strong>Planilha de Atendimentos e Encaminhamentos</strong> (ex: <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">atendimento.xlsx</code>)
+            <br>• <strong>Planilha de Cadastros Padrão</strong> (com CPF, Nome, Nascimento, Gênero)
+          </p>
 
           <div class="border-2 border-dashed border-slate-300 rounded-lg p-10 flex flex-col items-center justify-center gap-4 bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer relative">
             <input type="file" (change)="onFileSelected($event)" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer" />
@@ -62,44 +67,87 @@
               <mat-icon>assignment</mat-icon>
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-semibold uppercase">Total</p>
+              <p class="text-xs text-slate-400 font-semibold uppercase">Total Linhas</p>
               <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.total }}</h3>
             </div>
           </div>
 
           <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
             <div class="p-3 bg-green-100 text-green-800 rounded-full">
-              <mat-icon>person_add</mat-icon>
+              <mat-icon>check_circle</mat-icon>
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-semibold uppercase">Novos</p>
+              <p class="text-xs text-slate-400 font-semibold uppercase">Válidos</p>
               <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.valid }}</h3>
             </div>
           </div>
 
-          <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
-            <div class="p-3 bg-yellow-100 text-yellow-800 rounded-full">
-              <mat-icon>people</mat-icon>
+          @if (previewData().fileType !== 'atendimentos') {
+            <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
+              <div class="p-3 bg-yellow-100 text-yellow-800 rounded-full">
+                <mat-icon>people</mat-icon>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 font-semibold uppercase">Duplicados</p>
+                <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.duplicates }}</h3>
+              </div>
             </div>
-            <div>
-              <p class="text-xs text-slate-400 font-semibold uppercase">Duplicados</p>
-              <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.duplicates }}</h3>
-            </div>
-          </div>
 
-          <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
-            <div class="p-3 bg-red-100 text-red-800 rounded-full">
-              <mat-icon>error_outline</mat-icon>
+            <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm flex items-center gap-3">
+              <div class="p-3 bg-red-100 text-red-800 rounded-full">
+                <mat-icon>error_outline</mat-icon>
+              </div>
+              <div>
+                <p class="text-xs text-slate-400 font-semibold uppercase">Com Erro</p>
+                <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.invalid }}</h3>
+              </div>
             </div>
-            <div>
-              <p class="text-xs text-slate-400 font-semibold uppercase">Com Erro</p>
-              <h3 class="text-xl font-bold text-slate-800">{{ previewData().summary.invalid }}</h3>
-            </div>
-          </div>
+          }
         </div>
 
-        <!-- Duplicate Resolution Strategy selection -->
-        @if (previewData().summary.duplicates > 0) {
+        <!-- If file is atendimentos.xlsx preview table -->
+        @if (previewData().fileType === 'atendimentos') {
+          <mat-card class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
+            <h2 class="text-base font-semibold text-slate-800 mb-2">Pré-visualização do Histórico de Encaminhamentos</h2>
+            <p class="text-sm text-slate-500 mb-4">Esta planilha contém atendimentos operacionais com encaminhamentos para entrevistas e técnicos de referência.</p>
+
+            <div class="max-h-80 overflow-y-auto border border-slate-200 rounded-md">
+              <table class="w-full text-xs">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3 text-left font-semibold text-slate-700">Candidata #</th>
+                    <th class="py-2.5 px-3 text-left font-semibold text-slate-700">Data</th>
+                    <th class="py-2.5 px-3 text-left font-semibold text-slate-700">Técnico / Local</th>
+                    <th class="py-2.5 px-3 text-left font-semibold text-slate-700">Bairro</th>
+                    <th class="py-2.5 px-3 text-left font-semibold text-slate-700">Encaminhamentos / Notas</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  @for (row of previewData().rows.slice(0, 30); track $index) {
+                    <tr>
+                      <td class="py-2 px-3 font-bold text-indigo-700">#{{ row.candidateNumber }}</td>
+                      <td class="py-2 px-3 font-mono text-slate-600">{{ row.date | date:'dd/MM/yyyy' }}</td>
+                      <td class="py-2 px-3 text-slate-800">
+                        {{ row.technicianName }}
+                        @if (row.technicianWorkplace) {
+                          <span class="block text-[10px] text-slate-400">({{ row.technicianWorkplace }})</span>
+                        }
+                      </td>
+                      <td class="py-2 px-3 text-slate-600">{{ row.neighborhood || '-' }}</td>
+                      <td class="py-2 px-3 text-slate-600 truncate max-w-xs" [title]="row.notes">{{ row.notes }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if (previewData().rows.length > 30) {
+              <p class="text-xs text-slate-400 mt-2 text-center">Exibindo as primeiras 30 linhas de {{ previewData().rows.length }} registros.</p>
+            }
+          </mat-card>
+        }
+
+        <!-- Duplicate Resolution Strategy selection for citizens -->
+        @if (previewData().fileType !== 'atendimentos' && previewData().summary.duplicates > 0) {
           <mat-card class="bg-white p-6 shadow-sm border border-slate-200 rounded-lg">
             <h2 class="text-base font-semibold text-slate-800 mb-2">Tratamento de CPFs Duplicados</h2>
             <p class="text-sm text-slate-500 mb-4">Escolha a ação padrão para os cidadãos cujos CPFs já estão cadastrados no sistema.</p>
@@ -142,7 +190,7 @@
                               Ignorar
                             </button>
                             <button 
-                              type="button"
+                              type="button" 
                               (click)="setIndividualDecision(row.cpf, 'overwrite')"
                               [class]="individualDecisions[row.cpf] === 'overwrite' ? 'bg-blue-600 text-white px-3 py-1 text-xs font-semibold rounded-r-md border border-blue-600' : 'bg-white text-slate-500 px-3 py-1 text-xs border border-slate-200 hover:bg-slate-50 rounded-r-md'"
                             >
@@ -226,7 +274,7 @@
           <!-- Report summary -->
           <div class="w-full max-w-md bg-slate-50 rounded-lg p-5 border border-slate-200 flex flex-col gap-3">
             <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-              <span class="text-sm text-slate-600 font-medium">Novos cadastrados:</span>
+              <span class="text-sm text-slate-600 font-medium">Novos cadastrados / importados:</span>
               <span class="text-base font-bold text-slate-800">{{ executionResult().imported }}</span>
             </div>
             <div class="flex justify-between items-center border-b border-slate-200 pb-2">

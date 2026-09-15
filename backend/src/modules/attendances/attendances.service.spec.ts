@@ -41,11 +41,14 @@ describe('AttendancesService', () => {
   });
 
   describe('create', () => {
-    it('deve registrar um atendimento com sucesso para cidadão existente', async () => {
+    it('deve registrar um atendimento com sucesso para cidadão existente incluindo dados do técnico', async () => {
       const dto = {
         citizenId: 'citizen-uuid',
         serviceType: ServiceType.ORIENTACAO,
         notes: 'Alguma observação',
+        technicianName: 'Carolina Costa Victor',
+        technicianWorkplace: 'CREAS II',
+        technicianContact: '1239562183',
       };
       const userId = 'user-uuid';
 
@@ -61,8 +64,21 @@ describe('AttendancesService', () => {
 
       expect(result).toBeDefined();
       expect(result.id).toBe('attendance-uuid');
+      expect(result.technicianName).toBe('Carolina Costa Victor');
+      expect(result.technicianWorkplace).toBe('CREAS II');
+      expect(result.technicianContact).toBe('1239562183');
       expect(mockPrismaService.citizen.findUnique).toHaveBeenCalledWith({ where: { id: 'citizen-uuid' } });
-      expect(mockPrismaService.attendance.create).toHaveBeenCalled();
+      expect(mockPrismaService.attendance.create).toHaveBeenCalledWith({
+        data: {
+          citizenId: dto.citizenId,
+          userId,
+          serviceType: dto.serviceType,
+          notes: dto.notes,
+          technicianName: dto.technicianName,
+          technicianWorkplace: dto.technicianWorkplace,
+          technicianContact: dto.technicianContact,
+        },
+      });
     });
 
     it('deve lançar NotFoundException se o cidadão não existir', async () => {
@@ -81,7 +97,13 @@ describe('AttendancesService', () => {
     it('deve retornar a lista de atendimentos ordenada por data decrescente', async () => {
       const citizenId = 'citizen-uuid';
       const mockList = [
-        { id: '1', citizenId, serviceType: ServiceType.ORIENTACAO, createdAt: new Date() },
+        { 
+          id: '1', 
+          citizenId, 
+          serviceType: ServiceType.ORIENTACAO, 
+          technicianName: 'Carolina Costa',
+          createdAt: new Date() 
+        },
       ];
 
       mockPrismaService.citizen.findUnique.mockResolvedValue({ id: citizenId });
@@ -93,6 +115,16 @@ describe('AttendancesService', () => {
       expect(mockPrismaService.attendance.findMany).toHaveBeenCalledWith({
         where: { citizenId },
         orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
       });
     });
   });
@@ -131,6 +163,17 @@ describe('AttendancesService', () => {
       const findManyCall = mockPrismaService.attendance.findMany.mock.calls[0][0];
       expect(findManyCall.where.citizen).toBeDefined();
       expect(findManyCall.where.citizen.fullName.contains).toBe('João');
+    });
+
+    it('deve filtrar por nome do atendente ou técnico quando attendantName informado', async () => {
+      mockPrismaService.attendance.findMany.mockResolvedValue([]);
+      mockPrismaService.attendance.count.mockResolvedValue(0);
+
+      await service.findAll({ page: 1, limit: 10, attendantName: 'Carolina' });
+
+      const findManyCall = mockPrismaService.attendance.findMany.mock.calls[0][0];
+      expect(findManyCall.where.OR).toBeDefined();
+      expect(findManyCall.where.OR.length).toBe(2);
     });
 
     it('deve filtrar por intervalo de datas quando informado', async () => {

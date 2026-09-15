@@ -74,23 +74,26 @@
 
 
 
-## Fase 6: Adaptação de Requisitos, Formulários e Nova Seção de Atendimento 📋 (planejada)
+## Fase 6: Adaptação de Requisitos, Formulários e Nova Seção de Atendimento ✅ (concluída)
 
-- [ ] Criar nova migration Prisma com os campos atualizados:
+- [x] Criar nova migration Prisma com os campos atualizados:
   - `social_profiles`: `social_programs` e `disability_cid` (CID da Deficiência quando `is_pcd = true`).
   - `professional_profiles`: `priority_group` (Público prioritário para políticas públicas).
   - `attendances`: `technician_name`, `technician_workplace` e `technician_contact` (Nova Seção do Atendimento).
-- [ ] Atualizar DTOs, mappers e testes unitários do backend (`citizens`, `attendances`).
-- [ ] Implementar e testar parser de normalização para a planilha `files/formulario.xlsx` (baseada no formulário oficial `files/formulario.pdf`, com abas por público: `Mulheres`, `POP`, etc.).
-- [ ] Implementar e testar parser de normalização para a planilha `files/atendimento.xlsx` (histórico de encaminhamentos a vagas e entrevistas).
-- [ ] Atualizar interface no Angular:
+  - Remoção de colunas e enums descontinuados (`rg`, `race_color`, `marital_status`, `nis`, etc.).
+  - Migration `20260914173000_update_requirements_v2` aplicada nos bancos de dev e testes com regeneração do Prisma Client e seed atualizado.
+- [x] Atualizar DTOs, mappers e testes unitários do backend (`citizens`, `attendances`).
+- [x] Implementar e testar parser de normalização para a planilha `files/formulario.xlsx` (baseada no formulário oficial `files/formulario.pdf`, com abas por público: `Mulheres`, `POP`, etc.).
+- [x] Implementar e testar parser de normalização para a planilha `files/atendimento.xlsx` (histórico de encaminhamentos a vagas e entrevistas).
+- [x] Atualizar interface no Angular:
   - Exibir badge destacado de **Público Prioritário ao lado do nome da pessoa** (tabela de busca, cards, modais).
   - Adicionar a **Nova Seção do Atendimento** no formulário e no modal de detalhes do atendimento com os dados do técnico.
   - Ajustar tela de importação para suportar o carregamento das duas planilhas com resolução de duplicados.
-- [ ] Rodar suíte de testes completa (TDD) e validar cobertura ≥ 90%.
+- [x] Rodar suíte de testes completa (TDD) e validar cobertura ≥ 90%.
 
 
 
 ## Backlog (fora do escopo atual)
 
 - [ ] Estudo de viabilidade de versão 100% local (Desktop / Offline-first via Tauri/Electron/bundle local) — em discussão pela equipe (não oficial).
+- [ ] Sincronia com planilha oficial de cadastro de cidadãos

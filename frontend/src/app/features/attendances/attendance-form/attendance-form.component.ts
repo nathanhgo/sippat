@@ -57,23 +57,6 @@ export class AttendanceFormComponent implements OnInit {
     { value: 'NAO_DECLARADO', label: 'Prefiro não declarar' }
   ];
 
-  raceColors = [
-    { value: 'BRANCA', label: 'Branca' },
-    { value: 'PRETA', label: 'Preta' },
-    { value: 'PARDA', label: 'Parda' },
-    { value: 'AMARELA', label: 'Amarela' },
-    { value: 'INDIGENA', label: 'Indígena' },
-    { value: 'NAO_DECLARADO', label: 'Prefiro não declarar' }
-  ];
-
-  maritalStatuses = [
-    { value: 'SOLTEIRO', label: 'Solteiro(a)' },
-    { value: 'CASADO', label: 'Casado(a)' },
-    { value: 'DIVORCIADO', label: 'Divorciado(a)' },
-    { value: 'VIUVO', label: 'Viúvo(a)' },
-    { value: 'UNIAO_ESTAVEL', label: 'União Estável' }
-  ];
-
   constructor(
     private readonly fb: FormBuilder,
     private readonly citizensService: CitizensService,
@@ -84,10 +67,13 @@ export class AttendanceFormComponent implements OnInit {
       fullName: ['', [Validators.required]],
       birthDate: ['', [Validators.required]],
       gender: ['', [Validators.required]],
-      raceColor: ['', [Validators.required]],
-      maritalStatus: ['', [Validators.required]],
+      phone: [''],
+      neighborhood: [''],
       serviceType: ['', [Validators.required]],
-      notes: ['']
+      notes: [''],
+      technicianName: [''],
+      technicianWorkplace: [''],
+      technicianContact: ['']
     });
   }
 
@@ -135,8 +121,8 @@ export class AttendanceFormComponent implements OnInit {
       fullName: citizen.fullName,
       birthDate: formattedDate,
       gender: citizen.gender,
-      raceColor: citizen.raceColor,
-      maritalStatus: citizen.maritalStatus
+      phone: citizen.phone || '',
+      neighborhood: citizen.neighborhood || ''
     });
 
     this.suggestedCitizen.set(null);
@@ -155,7 +141,14 @@ export class AttendanceFormComponent implements OnInit {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
-    const { serviceType, notes, ...citizenData } = this.attendanceForm.value;
+    const { 
+      serviceType, 
+      notes, 
+      technicianName, 
+      technicianWorkplace, 
+      technicianContact, 
+      ...citizenData 
+    } = this.attendanceForm.value;
     const cpf = this.cpfControl.value || '';
 
     // Step 1: Save or update the Citizen
@@ -167,11 +160,14 @@ export class AttendanceFormComponent implements OnInit {
       next: (savedCitizen) => {
         const citizenId = savedCitizen.id || this.selectedCitizenId();
         
-        // Step 2: Register the Attendance
+        // Step 2: Register the Attendance with technician details
         this.attendancesService.create({
           citizenId,
           serviceType,
-          notes
+          notes,
+          technicianName: technicianName || undefined,
+          technicianWorkplace: technicianWorkplace || undefined,
+          technicianContact: technicianContact || undefined,
         }).subscribe({
           next: () => {
             this.isSubmitting.set(false);

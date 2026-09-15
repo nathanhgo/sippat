@@ -48,28 +48,18 @@ export class CitizenFormComponent implements OnInit {
     { value: 'NAO_DECLARADO', label: 'Prefiro não declarar' },
   ];
 
-  raceColors = [
-    { value: 'BRANCA', label: 'Branca' },
-    { value: 'PRETA', label: 'Preta' },
-    { value: 'PARDA', label: 'Parda' },
-    { value: 'AMARELA', label: 'Amarela' },
-    { value: 'INDIGENA', label: 'Indígena' },
-    { value: 'NAO_DECLARADO', label: 'Prefiro não declarar' },
-  ];
-
-  maritalStatuses = [
-    { value: 'SOLTEIRO', label: 'Solteiro(a)' },
-    { value: 'CASADO', label: 'Casado(a)' },
-    { value: 'DIVORCIADO', label: 'Divorciado(a)' },
-    { value: 'VIUVO', label: 'Viúvo(a)' },
-    { value: 'UNIAO_ESTAVEL', label: 'União Estável' },
-  ];
-
-  housingStatuses = [
-    { value: 'OWN', label: 'Própria' },
-    { value: 'RENTED', label: 'Alugada' },
-    { value: 'RISK_AREA', label: 'Área de Risco' },
-    { value: 'UNHOUSED', label: 'Sem Moradia / Situação de Rua' },
+  priorityGroups = [
+    'Fluxo Municipal da Mulher',
+    'Pessoa com deficiência',
+    'Pessoa com TEA',
+    'Acompanhamento pelo CAPS AD',
+    'Acompanhamento pelo CAPS II',
+    'Acompanhamento pelo CRAS',
+    'Acompanhamento pelo CREAS',
+    'Acompanhamento pelo Centro POP',
+    'Acompanhamento pela Casa do Abraço',
+    'Egressos do Programa Jovem Aprendiz Acima de 18 anos',
+    'Outra'
   ];
 
   constructor(
@@ -80,29 +70,18 @@ export class CitizenFormComponent implements OnInit {
   ) {
     this.citizenForm = this.fb.group({
       cpf: ['', [Validators.required, CustomValidators.cpf()]],
-      rg: [''],
       fullName: ['', [Validators.required]],
       birthDate: ['', [Validators.required]],
       gender: ['', [Validators.required]],
-      raceColor: ['', [Validators.required]],
-      maritalStatus: ['', [Validators.required]],
       phone: [''],
-      email: ['', [Validators.email]],
-      addressStreet: [''],
-      addressNumber: [''],
       neighborhood: [''],
-      zipCode: ['', [CustomValidators.cep()]],
       socialProfile: this.fb.group({
-        nis: ['', [CustomValidators.nis()]],
-        perCapitaIncome: [null],
-        housingStatus: [null],
-        familyMembersCount: [null],
-        receivesBolsaFamilia: [false],
-        receivesBpc: [false],
+        socialPrograms: [''],
         isPcd: [false],
-        pcdDescription: ['']
+        disabilityCid: ['']
       }),
       professionalProfile: this.fb.group({
+        priorityGroup: [''],
         educationLevel: [''],
         courses: [''],
         experiences: [''],
@@ -128,6 +107,8 @@ export class CitizenFormComponent implements OnInit {
       if (exp.cargo) parts.push(`Cargo: ${exp.cargo}`);
       if (exp.empresa) parts.push(`Empresa: ${exp.empresa}`);
       if (exp.duracao) parts.push(`Duração: ${exp.duracao}`);
+      if (exp.last_occupation) parts.push(`Última ocupação: ${exp.last_occupation}`);
+      if (exp.experience_duration) parts.push(`Tempo: ${exp.experience_duration}`);
       return parts.length > 0 ? parts.join(' - ') : JSON.stringify(exp);
     }
     return String(exp);
@@ -146,11 +127,10 @@ export class CitizenFormComponent implements OnInit {
               data.birthDate = dateObj.toISOString().substring(0, 10);
             }
           } catch (e) {
-            // Keep original if parsing fails
+            // Keep original
           }
         }
 
-        // Format professional profile arrays/objects to strings for form inputs
         if (data.professionalProfile) {
           const prof = data.professionalProfile;
           let expString = '';
@@ -163,6 +143,7 @@ export class CitizenFormComponent implements OnInit {
           }
 
           data.professionalProfile = {
+            priorityGroup: prof.priorityGroup || '',
             educationLevel: prof.educationLevel || '',
             courses: Array.isArray(prof.courses) ? prof.courses.join(', ') : (prof.courses || ''),
             experiences: expString,
@@ -172,14 +153,9 @@ export class CitizenFormComponent implements OnInit {
 
         if (!data.socialProfile) {
           data.socialProfile = {
-            nis: '',
-            perCapitaIncome: null,
-            housingStatus: null,
-            familyMembersCount: null,
-            receivesBolsaFamilia: false,
-            receivesBpc: false,
+            socialPrograms: '',
             isPcd: false,
-            pcdDescription: ''
+            disabilityCid: ''
           };
         }
 
@@ -193,7 +169,7 @@ export class CitizenFormComponent implements OnInit {
         this.citizenForm.updateValueAndValidity();
         this.citizenForm.markAsPristine();
       },
-      error: (err) => {
+      error: () => {
         this.isLoading.set(false);
         this.errorMessage.set('Erro ao carregar os dados do cidadão.');
       }
@@ -203,7 +179,7 @@ export class CitizenFormComponent implements OnInit {
   onSubmit() {
     if (this.citizenForm.invalid) {
       this.citizenForm.markAllAsTouched();
-      this.errorMessage.set('Existem campos obrigatórios ou inválidos no formulário. Por favor, revise os dados das abas.');
+      this.errorMessage.set('Existem campos obrigatórios ou inválidos no formulário. Por favor, revise os dados.');
       return;
     }
 
@@ -212,10 +188,10 @@ export class CitizenFormComponent implements OnInit {
 
     const rawValue = this.citizenForm.getRawValue();
 
-    // Format professional profile strings back to arrays for backend DTO
     if (rawValue.professionalProfile) {
       const prof = rawValue.professionalProfile;
       rawValue.professionalProfile = {
+        priorityGroup: prof.priorityGroup || undefined,
         educationLevel: prof.educationLevel || undefined,
         courses: typeof prof.courses === 'string' && prof.courses.trim() 
           ? prof.courses.split(',').map((s: string) => s.trim()).filter(Boolean) 

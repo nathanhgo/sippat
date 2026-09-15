@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { validate } from 'class-validator';
-import { CreateCitizenDto } from './create-citizen.dto';
-import { Gender, RaceColor, MaritalStatus } from '@prisma/client';
+import { CreateCitizenDto, CreateSocialProfileDto, CreateProfessionalProfileDto } from './create-citizen.dto';
+import { Gender } from '@prisma/client';
 import { describe, it, expect } from 'vitest';
 
 describe('CreateCitizenDto Validation', () => {
@@ -11,10 +11,18 @@ describe('CreateCitizenDto Validation', () => {
     dto.fullName = 'Jane Doe';
     dto.birthDate = '1990-01-01T00:00:00.000Z';
     dto.gender = Gender.FEMININO;
-    dto.raceColor = RaceColor.PARDA;
-    dto.maritalStatus = MaritalStatus.SOLTEIRO;
-    dto.email = 'jane@example.com';
-    dto.zipCode = '12345678';
+    dto.phone = '12999999999';
+    dto.neighborhood = 'Centro';
+    dto.socialProfile = Object.assign(new CreateSocialProfileDto(), {
+      isPcd: true,
+      disabilityCid: 'F84.0',
+      socialPrograms: 'Bolsa Família',
+    });
+    dto.professionalProfile = Object.assign(new CreateProfessionalProfileDto(), {
+      priorityGroup: 'Fluxo Municipal da Mulher',
+      educationLevel: 'Médio completo',
+      targetAreas: ['Atendimento ao público'],
+    });
     return dto;
   };
 
@@ -32,30 +40,27 @@ describe('CreateCitizenDto Validation', () => {
     expect(errors[0].property).toBe('cpf');
   });
 
-  it('deve rejeitar se o NIS no socialProfile for inválido', async () => {
+  it('deve rejeitar se o nome completo for vazio', async () => {
     const dto = getValidDto();
-    dto.socialProfile = {
-      nis: '1234', // Invalid NIS (too short/wrong formula)
-    };
+    dto.fullName = '';
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
-    // Drill down into nested validation errors
-    expect(errors[0].property).toBe('socialProfile');
+    expect(errors[0].property).toBe('fullName');
   });
 
-  it('deve rejeitar se o CEP estiver em formato incorreto', async () => {
+  it('deve rejeitar se a data de nascimento for inválida', async () => {
     const dto = getValidDto();
-    dto.zipCode = '123'; // Invalid CEP
+    dto.birthDate = 'invalid-date';
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
-    expect(errors[0].property).toBe('zipCode');
+    expect(errors[0].property).toBe('birthDate');
   });
 
-  it('deve rejeitar se o e-mail estiver em formato incorreto', async () => {
+  it('deve rejeitar se o gênero for inválido', async () => {
     const dto = getValidDto();
-    dto.email = 'invalid-email';
+    dto.gender = 'INVALIDO' as any;
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);
-    expect(errors[0].property).toBe('email');
+    expect(errors[0].property).toBe('gender');
   });
 });

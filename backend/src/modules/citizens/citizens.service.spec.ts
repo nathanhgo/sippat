@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CitizensService } from './citizens.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCitizenDto } from './dto/create-citizen.dto';
-import { Gender, RaceColor, MaritalStatus, HousingStatus } from '@prisma/client';
+import { Gender } from '@prisma/client';
 import { vi, describe, beforeEach, afterEach, it, expect } from 'vitest';
 import * as crypto from 'crypto';
 
@@ -65,22 +65,20 @@ describe('CitizensService', () => {
 
   describe('create', () => {
     const validDto: CreateCitizenDto = {
-      cpf: '12345678909',
+      cpf: '52998224725',
       fullName: 'Jane Doe',
       birthDate: '1990-01-01',
       gender: Gender.FEMININO,
-      raceColor: RaceColor.PARDA,
-      maritalStatus: MaritalStatus.SOLTEIRO,
-      email: 'jane@example.com',
-      zipCode: '12345678',
+      phone: '12987654321',
+      neighborhood: 'Centro',
       socialProfile: {
-        nis: '12345678901',
-        perCapitaIncome: 500.50,
-        housingStatus: HousingStatus.RENTED,
-        familyMembersCount: 3,
-        receivesBolsaFamilia: true,
-        receivesBpc: false,
-        isPcd: false,
+        isPcd: true,
+        disabilityCid: 'F84.0',
+        socialPrograms: 'Bolsa Família',
+      },
+      professionalProfile: {
+        priorityGroup: 'Fluxo Municipal da Mulher',
+        educationLevel: 'Médio completo',
       },
     };
 
@@ -93,6 +91,10 @@ describe('CitizensService', () => {
           socialProfile: {
             id: 'profile-uuid',
             ...args.data.socialProfile?.create,
+          },
+          professionalProfile: {
+            id: 'prof-uuid',
+            ...args.data.professionalProfile?.create,
           },
         };
       });
@@ -110,7 +112,7 @@ describe('CitizensService', () => {
       await expect(service.create(validDto)).rejects.toThrow('CPF já cadastrado');
     });
 
-    it('deve criptografar campos sensíveis de social_profiles antes de salvar', async () => {
+    it('deve criptografar campos sensíveis de social_profiles (socialPrograms e disabilityCid) antes de salvar', async () => {
       mockPrismaService.citizen.findUnique.mockResolvedValue(null);
       let capturedData: any = null;
       mockPrismaService.citizen.create.mockImplementation((args) => {
@@ -122,30 +124,31 @@ describe('CitizensService', () => {
 
       expect(capturedData).toBeDefined();
       const socialProfileData = capturedData.socialProfile.create;
-      // O NIS e a Renda não devem estar em texto plano no banco de dados
-      expect(socialProfileData.nis).not.toBe('12345678901');
-      expect(socialProfileData.nis).toContain(':'); // Formato da criptografia (IV:TextoCriptografado)
+      expect(socialProfileData.socialPrograms).not.toBe('Bolsa Família');
+      expect(socialProfileData.socialPrograms).toContain(':');
+      expect(socialProfileData.disabilityCid).not.toBe('F84.0');
+      expect(socialProfileData.disabilityCid).toContain(':');
     });
   });
 
-
-describe('findOne / read', () => {
+  describe('findOne / read', () => {
     it('deve descriptografar os campos sensíveis de social_profiles ao ler do banco', async () => {
-      // Mock de dados criptografados vindo do banco
       const dbCitizen = {
         id: 'citizen-uuid',
-        cpf: '12345678909',
+        cpf: '52998224725',
         fullName: 'Jane Doe',
         birthDate: new Date('1990-01-01'),
         gender: Gender.FEMININO,
-        raceColor: RaceColor.PARDA,
-        maritalStatus: MaritalStatus.SOLTEIRO,
+        neighborhood: 'Centro',
         socialProfile: {
           id: 'profile-uuid',
-          nis: encryptHelper('12345678901'), 
-          perCapitaIncome: encryptHelper('500.5'), 
-          pcdDescription: null,
-          receivesBolsaFamilia: true,
+          isPcd: true,
+          socialPrograms: encryptHelper('Bolsa Família'),
+          disabilityCid: encryptHelper('F84.0'),
+        },
+        professionalProfile: {
+          id: 'prof-uuid',
+          priorityGroup: 'Fluxo Municipal da Mulher',
         },
       };
 
@@ -155,28 +158,78 @@ describe('findOne / read', () => {
 
       expect(result).toBeDefined();
       expect(result.socialProfile).toBeDefined();
-      // O valor retornado para a aplicação deve ser o texto descriptografado correto
-      expect(result.socialProfile.nis).toBe('12345678901');
-      expect(result.socialProfile.perCapitaIncome).toBe(500.5);
+      expect(result.socialProfile.socialPrograms).toBe('Bolsa Família');
+      expect(result.socialProfile.disabilityCid).toBe('F84.0');
+    });
+
+    it('deve lançar NotFoundException quando cidadão não for encontrado', async () => {
+      mockPrismaService.citizen.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne('non-existent')).rejects.toThrow('Cidadão não encontrado');
+    });
+  });
+
+  describe('update', () => {
+    it('deve atualizar um cidadão existente e seus perfis com sucesso', async () => {
+      mockPrismaService.citizen.findUnique.mockResolvedValue({ id: 'citizen-1' });
+      mockPrismaService.citizen.update.mockResolvedValue({
+        id: 'citizen-1',
+        fullName: 'Jane Updated',
+        cpf: '52998224725',
+        socialProfile: {
+          socialPrograms: encryptHelper('BPC'),
+          isPcd: true,
+          disabilityCid: encryptHelper('G80.0'),
+        },
+        professionalProfile: {
+          priorityGroup: 'Fluxo Municipal da Mulher',
+        },
+      });
+
+      const result = await service.update('citizen-1', {
+        fullName: 'Jane Updated',
+        socialProfile: {
+          socialPrograms: 'BPC',
+          isPcd: true,
+          disabilityCid: 'G80.0',
+        },
+        professionalProfile: {
+          priorityGroup: 'Fluxo Municipal da Mulher',
+        },
+      });
+
+      expect(result).toBeDefined();
+      expect(result.fullName).toBe('Jane Updated');
+      expect(result.socialProfile.socialPrograms).toBe('BPC');
+      expect(result.socialProfile.disabilityCid).toBe('G80.0');
+      expect(mockPrismaService.citizen.update).toHaveBeenCalled();
+    });
+
+    it('deve lançar NotFoundException ao tentar atualizar cidadão inexistente', async () => {
+      mockPrismaService.citizen.findUnique.mockResolvedValue(null);
+
+      await expect(service.update('non-existent', { fullName: 'Teste' })).rejects.toThrow('Cidadão não encontrado');
     });
   });
 
   describe('findAll / advanced search', () => {
-    it('deve retornar lista de cidadãos com paginação e descriptografar campos', async () => {
+    it('deve retornar lista de cidadãos com paginação, filtros e descriptografar campos', async () => {
       const mockList = [
         {
           id: 'citizen-1',
           fullName: 'Jane Doe',
-          cpf: '12345678909',
+          cpf: '52998224725',
           neighborhood: 'Centro',
           socialProfile: {
-            nis: encryptHelper('12345678901'),
-            perCapitaIncome: encryptHelper('600'),
+            isPcd: true,
+            socialPrograms: encryptHelper('Bolsa Família'),
+            disabilityCid: encryptHelper('F84.0'),
           },
           professionalProfile: {
+            priorityGroup: 'Fluxo Municipal da Mulher',
             educationLevel: 'Superior Completo',
-          }
-        }
+          },
+        },
       ];
 
       mockPrismaService.citizen.findMany.mockResolvedValue(mockList);
@@ -186,20 +239,22 @@ describe('findOne / read', () => {
         search: 'Jane',
         neighborhood: 'Centro',
         educationLevel: 'Superior Completo',
-        isPcd: false,
+        priorityGroup: 'Fluxo Municipal da Mulher',
+        isPcd: true,
         page: 1,
         limit: 10,
       });
 
       expect(result.data.length).toBe(1);
       expect(result.total).toBe(1);
-      expect(result.data[0].socialProfile.perCapitaIncome).toBe(600);
+      expect(result.data[0].socialProfile.socialPrograms).toBe('Bolsa Família');
+      expect(result.data[0].socialProfile.disabilityCid).toBe('F84.0');
       expect(mockPrismaService.citizen.findMany).toHaveBeenCalled();
     });
   });
 
   describe('delete', () => {
-    it('deve excluir o cidadão e seus relacionamentos com sucesso', async () => {
+    it('deve excluir o cidadão e seus relacionamentos com sucesso em transação', async () => {
       mockPrismaService.citizen.findUnique.mockResolvedValue({ id: 'citizen-1' });
 
       const result = await service.delete('citizen-1');

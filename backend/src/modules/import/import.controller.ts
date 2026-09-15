@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFile, UseGuards, Request } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImportService } from './import.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -19,11 +19,14 @@ export class ImportController {
   async confirmImport(
     @Body()
     dto: {
-      citizens: any[];
+      citizens?: any[];
+      attendances?: any[];
       duplicateStrategy: 'overwrite_all' | 'ignore_all' | 'individual';
       decisions?: Record<string, 'overwrite' | 'ignore'>;
     },
+    @Request() req?: any,
   ) {
-    return this.importService.execute(dto);
+    const userId = req?.user?.sub;
+    return this.importService.execute(dto, userId);
   }
 }

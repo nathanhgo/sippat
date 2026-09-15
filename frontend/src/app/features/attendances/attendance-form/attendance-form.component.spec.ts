@@ -21,8 +21,8 @@ describe('AttendanceFormComponent', () => {
     fullName: 'John Doe',
     birthDate: '1990-01-01',
     gender: 'MASCULINO',
-    raceColor: 'BRANCA',
-    maritalStatus: 'SOLTEIRO',
+    phone: '12999998888',
+    neighborhood: 'Centro',
   };
 
   beforeEach(async () => {
@@ -77,16 +77,19 @@ describe('AttendanceFormComponent', () => {
     expect(component.attendanceForm.get('fullName')?.value).toBe('John Doe');
   });
 
-  it('deve registrar atendimento com sucesso chamando service.create', () => {
+  it('deve registrar atendimento com sucesso chamando service.create com dados do técnico', () => {
     component.selectedCitizenId.set('citizen-uuid');
     component.attendanceForm.patchValue({
       fullName: 'John Doe',
       birthDate: '1990-01-01',
       gender: 'MASCULINO',
-      raceColor: 'BRANCA',
-      maritalStatus: 'SOLTEIRO',
+      phone: '12999998888',
+      neighborhood: 'Centro',
       serviceType: 'ORIENTACAO',
       notes: 'alguma nota',
+      technicianName: 'Juliana de Fátima',
+      technicianWorkplace: 'CREAS I',
+      technicianContact: '1239562183',
     });
 
     component.onSubmit();
@@ -95,6 +98,9 @@ describe('AttendanceFormComponent', () => {
       citizenId: 'citizen-uuid',
       serviceType: 'ORIENTACAO',
       notes: 'alguma nota',
+      technicianName: 'Juliana de Fátima',
+      technicianWorkplace: 'CREAS I',
+      technicianContact: '1239562183',
     });
     expect(router.navigate).toHaveBeenCalledWith(['/citizens']);
   });

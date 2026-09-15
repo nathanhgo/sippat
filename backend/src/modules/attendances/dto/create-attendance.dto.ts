@@ -13,4 +13,16 @@ export class CreateAttendanceDto {
   @IsString({ message: 'Notas devem ser texto' })
   @IsOptional()
   notes?: string;
+
+  @IsString({ message: 'Nome do técnico deve ser texto' })
+  @IsOptional()
+  technicianName?: string;
+
+  @IsString({ message: 'Local de trabalho do técnico deve ser texto' })
+  @IsOptional()
+  technicianWorkplace?: string;
+
+  @IsString({ message: 'Contato do técnico deve ser texto' })
+  @IsOptional()
+  technicianContact?: string;
 }

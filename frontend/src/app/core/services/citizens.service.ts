@@ -14,6 +14,7 @@ export class CitizensService {
     neighborhood?: string;
     educationLevel?: string;
     isPcd?: boolean;
+    priorityGroup?: string;
     minIncome?: number;
     maxIncome?: number;
     page?: number;
@@ -31,6 +32,9 @@ export class CitizensService {
     }
     if (params?.isPcd !== undefined) {
       httpParams = httpParams.set('isPcd', params.isPcd.toString());
+    }
+    if (params?.priorityGroup) {
+      httpParams = httpParams.set('priorityGroup', params.priorityGroup);
     }
     if (params?.minIncome !== undefined) {
       httpParams = httpParams.set('minIncome', params.minIncome.toString());

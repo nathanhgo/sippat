@@ -34,15 +34,11 @@ export class CitizensService {
 
   private decryptCitizen(citizen: any) {
     if (citizen && citizen.socialProfile) {
-      if (citizen.socialProfile.nis) {
-        citizen.socialProfile.nis = decrypt(citizen.socialProfile.nis);
+      if (citizen.socialProfile.socialPrograms) {
+        citizen.socialProfile.socialPrograms = decrypt(citizen.socialProfile.socialPrograms);
       }
-      if (citizen.socialProfile.perCapitaIncome) {
-        const decryptedIncome = decrypt(citizen.socialProfile.perCapitaIncome);
-        citizen.socialProfile.perCapitaIncome = decryptedIncome ? parseFloat(decryptedIncome) : null;
-      }
-      if (citizen.socialProfile.pcdDescription) {
-        citizen.socialProfile.pcdDescription = decrypt(citizen.socialProfile.pcdDescription);
+      if (citizen.socialProfile.disabilityCid) {
+        citizen.socialProfile.disabilityCid = decrypt(citizen.socialProfile.disabilityCid);
       }
     }
     return citizen;
@@ -67,14 +63,9 @@ export class CitizensService {
     if (socialProfile) {
       data.socialProfile = {
         create: {
-          nis: socialProfile.nis ? encrypt(socialProfile.nis) : undefined,
-          perCapitaIncome: socialProfile.perCapitaIncome !== undefined ? encrypt(String(socialProfile.perCapitaIncome)) : undefined,
-          housingStatus: socialProfile.housingStatus,
-          familyMembersCount: socialProfile.familyMembersCount,
-          receivesBolsaFamilia: socialProfile.receivesBolsaFamilia,
-          receivesBpc: socialProfile.receivesBpc,
-          isPcd: socialProfile.isPcd,
-          pcdDescription: socialProfile.pcdDescription ? encrypt(socialProfile.pcdDescription) : undefined,
+          socialPrograms: socialProfile.socialPrograms ? encrypt(socialProfile.socialPrograms) : undefined,
+          isPcd: socialProfile.isPcd ?? false,
+          disabilityCid: socialProfile.disabilityCid ? encrypt(socialProfile.disabilityCid) : undefined,
         },
       };
     }
@@ -82,6 +73,7 @@ export class CitizensService {
     if (professionalProfile) {
       data.professionalProfile = {
         create: {
+          priorityGroup: professionalProfile.priorityGroup,
           educationLevel: professionalProfile.educationLevel,
           courses: professionalProfile.courses,
           experiences: professionalProfile.experiences,
@@ -107,6 +99,19 @@ export class CitizensService {
       include: {
         socialProfile: true,
         professionalProfile: true,
+        attendances: {
+          orderBy: { createdAt: 'desc' },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -122,8 +127,7 @@ export class CitizensService {
     neighborhood?: string;
     educationLevel?: string;
     isPcd?: boolean;
-    minIncome?: number;
-    maxIncome?: number;
+    priorityGroup?: string;
     page?: number;
     limit?: number;
   }) {
@@ -144,10 +148,14 @@ export class CitizensService {
       where.neighborhood = { contains: query.neighborhood, mode: 'insensitive' };
     }
 
-    if (query.educationLevel) {
-      where.professionalProfile = {
-        educationLevel: { contains: query.educationLevel, mode: 'insensitive' },
-      };
+    if (query.educationLevel || query.priorityGroup) {
+      where.professionalProfile = {};
+      if (query.educationLevel) {
+        where.professionalProfile.educationLevel = { contains: query.educationLevel, mode: 'insensitive' };
+      }
+      if (query.priorityGroup) {
+        where.professionalProfile.priorityGroup = { contains: query.priorityGroup, mode: 'insensitive' };
+      }
     }
 
     if (query.isPcd !== undefined) {
@@ -157,39 +165,24 @@ export class CitizensService {
       };
     }
 
-    const citizens = await this.prisma.citizen.findMany({
-      where,
-      include: {
-        socialProfile: true,
-        professionalProfile: true,
-      },
-    });
+    const [citizens, total] = await Promise.all([
+      this.prisma.citizen.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          socialProfile: true,
+          professionalProfile: true,
+        },
+      }),
+      this.prisma.citizen.count({ where }),
+    ]);
 
     const decryptedCitizens = citizens.map((c) => this.decryptCitizen(c));
 
-    let filtered = decryptedCitizens;
-    if (query.minIncome !== undefined) {
-      filtered = filtered.filter(
-        (c) =>
-          c.socialProfile &&
-          c.socialProfile.perCapitaIncome !== null &&
-          Number(c.socialProfile.perCapitaIncome) >= Number(query.minIncome),
-      );
-    }
-    if (query.maxIncome !== undefined) {
-      filtered = filtered.filter(
-        (c) =>
-          c.socialProfile &&
-          c.socialProfile.perCapitaIncome !== null &&
-          Number(c.socialProfile.perCapitaIncome) <= Number(query.maxIncome),
-      );
-    }
-
-    const total = filtered.length;
-    const paginated = filtered.slice(skip, skip + limit);
-
     return {
-      data: paginated,
+      data: decryptedCitizens,
       total,
       page,
       limit,
@@ -218,24 +211,14 @@ export class CitizensService {
       data.socialProfile = {
         upsert: {
           create: {
-            nis: socialProfile.nis ? encrypt(socialProfile.nis) : undefined,
-            perCapitaIncome: socialProfile.perCapitaIncome !== undefined ? encrypt(String(socialProfile.perCapitaIncome)) : undefined,
-            housingStatus: socialProfile.housingStatus,
-            familyMembersCount: socialProfile.familyMembersCount,
-            receivesBolsaFamilia: socialProfile.receivesBolsaFamilia,
-            receivesBpc: socialProfile.receivesBpc,
-            isPcd: socialProfile.isPcd,
-            pcdDescription: socialProfile.pcdDescription ? encrypt(socialProfile.pcdDescription) : undefined,
+            socialPrograms: socialProfile.socialPrograms ? encrypt(socialProfile.socialPrograms) : undefined,
+            isPcd: socialProfile.isPcd ?? false,
+            disabilityCid: socialProfile.disabilityCid ? encrypt(socialProfile.disabilityCid) : undefined,
           },
           update: {
-            nis: socialProfile.nis ? encrypt(socialProfile.nis) : undefined,
-            perCapitaIncome: socialProfile.perCapitaIncome !== undefined ? encrypt(String(socialProfile.perCapitaIncome)) : undefined,
-            housingStatus: socialProfile.housingStatus,
-            familyMembersCount: socialProfile.familyMembersCount,
-            receivesBolsaFamilia: socialProfile.receivesBolsaFamilia,
-            receivesBpc: socialProfile.receivesBpc,
-            isPcd: socialProfile.isPcd,
-            pcdDescription: socialProfile.pcdDescription ? encrypt(socialProfile.pcdDescription) : undefined,
+            socialPrograms: socialProfile.socialPrograms ? encrypt(socialProfile.socialPrograms) : undefined,
+            isPcd: socialProfile.isPcd !== undefined ? socialProfile.isPcd : undefined,
+            disabilityCid: socialProfile.disabilityCid ? encrypt(socialProfile.disabilityCid) : undefined,
           },
         },
       };
@@ -245,12 +228,14 @@ export class CitizensService {
       data.professionalProfile = {
         upsert: {
           create: {
+            priorityGroup: professionalProfile.priorityGroup,
             educationLevel: professionalProfile.educationLevel,
             courses: professionalProfile.courses,
             experiences: professionalProfile.experiences,
             targetAreas: professionalProfile.targetAreas,
           },
           update: {
+            priorityGroup: professionalProfile.priorityGroup,
             educationLevel: professionalProfile.educationLevel,
             courses: professionalProfile.courses,
             experiences: professionalProfile.experiences,

@@ -21,6 +21,9 @@ export class AttendancesService {
         userId,
         serviceType: createAttendanceDto.serviceType,
         notes: createAttendanceDto.notes,
+        technicianName: createAttendanceDto.technicianName,
+        technicianWorkplace: createAttendanceDto.technicianWorkplace,
+        technicianContact: createAttendanceDto.technicianContact,
       },
     });
   }
@@ -37,6 +40,16 @@ export class AttendancesService {
     return this.prisma.attendance.findMany({
       where: { citizenId },
       orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
     });
   }
 
@@ -66,9 +79,10 @@ export class AttendancesService {
     }
 
     if (query.attendantName) {
-      where.user = {
-        name: { contains: query.attendantName, mode: 'insensitive' },
-      };
+      where.OR = [
+        { user: { name: { contains: query.attendantName, mode: 'insensitive' } } },
+        { technicianName: { contains: query.attendantName, mode: 'insensitive' } },
+      ];
     }
 
     if (query.dateFrom || query.dateTo) {
@@ -97,7 +111,7 @@ export class AttendancesService {
               fullName: true,
               cpf: true,
               phone: true,
-              email: true,
+              neighborhood: true,
             },
           },
           user: {

@@ -80,7 +80,7 @@ export class ImportComponent {
           });
         }
       },
-      error: (err) => {
+      error: () => {
         alert('Erro ao carregar e analisar a planilha. Verifique o formato.');
         this.isLoading.set(false);
       }
@@ -97,19 +97,26 @@ export class ImportComponent {
 
     this.isLoading.set(true);
 
-    // Send only valid rows for execution (either 'new' or 'duplicate')
-    const validCitizens = preview.rows
-      .filter((row: any) => row.status === 'new' || row.status === 'duplicate')
-      .map((row: any) => {
-        const { status, existingId, errors, ...citizenData } = row;
-        return citizenData;
-      });
+    let payload: any;
+    if (preview.fileType === 'atendimentos') {
+      payload = {
+        attendances: preview.rows,
+        duplicateStrategy: 'ignore_all' as const,
+      };
+    } else {
+      const validCitizens = (preview.rows || [])
+        .filter((row: any) => row.status === 'new' || row.status === 'duplicate')
+        .map((row: any) => {
+          const { status, existingId, errors, ...citizenData } = row;
+          return citizenData;
+        });
 
-    const payload = {
-      citizens: validCitizens,
-      duplicateStrategy: this.duplicateStrategy(),
-      decisions: this.duplicateStrategy() === 'individual' ? this.individualDecisions : undefined
-    };
+      payload = {
+        citizens: validCitizens,
+        duplicateStrategy: this.duplicateStrategy(),
+        decisions: this.duplicateStrategy() === 'individual' ? this.individualDecisions : undefined
+      };
+    }
 
     this.importService.confirm(payload).subscribe({
       next: (res) => {
@@ -117,8 +124,8 @@ export class ImportComponent {
         this.step.set('result');
         this.isLoading.set(false);
       },
-      error: (err) => {
-        alert('Erro ao realizar a importação dos cidadãos.');
+      error: () => {
+        alert('Erro ao realizar a importação dos dados.');
         this.isLoading.set(false);
       }
     });
@@ -134,10 +141,10 @@ export class ImportComponent {
   }
 
   getDuplicateRows(): any[] {
-    return this.previewData()?.rows.filter((r: any) => r.status === 'duplicate') || [];
+    return this.previewData()?.rows?.filter((r: any) => r.status === 'duplicate') || [];
   }
 
   getErrorRows(): any[] {
-    return this.previewData()?.rows.filter((r: any) => r.status === 'error') || [];
+    return this.previewData()?.rows?.filter((r: any) => r.status === 'error') || [];
   }
 }

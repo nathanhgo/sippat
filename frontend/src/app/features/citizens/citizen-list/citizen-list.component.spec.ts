@@ -15,8 +15,22 @@ describe('CitizenListComponent', () => {
 
   const mockCitizensList = {
     data: [
-      { id: '1', fullName: 'John Doe', cpf: '12345678909', socialProfile: { nis: '12345678901', receivesBolsaFamilia: true } },
-      { id: '2', fullName: 'Jane Doe', cpf: '98765432101', socialProfile: { nis: '98765432102', receivesBolsaFamilia: false } },
+      { 
+        id: '1', 
+        fullName: 'John Doe', 
+        cpf: '12345678909', 
+        neighborhood: 'Centro',
+        socialProfile: { isPcd: true, disabilityCid: 'F84' },
+        professionalProfile: { priorityGroup: 'Fluxo Municipal da Mulher' }
+      },
+      { 
+        id: '2', 
+        fullName: 'Jane Doe', 
+        cpf: '98765432101', 
+        neighborhood: 'Esperança',
+        socialProfile: { isPcd: false },
+        professionalProfile: { priorityGroup: 'Acompanhamento pelo Centro POP' }
+      },
     ],
     total: 2,
   };
@@ -70,9 +84,8 @@ describe('CitizenListComponent', () => {
       search: 'Jane',
       neighborhood: '',
       educationLevel: '',
+      priorityGroup: '',
       isPcd: undefined,
-      minIncome: undefined,
-      maxIncome: undefined,
       page: 1,
       limit: 10
     });
@@ -87,9 +100,8 @@ describe('CitizenListComponent', () => {
   it('deve chamar findAll com filtros de busca avançada quando preenchidos', () => {
     component.neighborhoodControl.setValue('Centro');
     component.educationControl.setValue('Médio');
+    component.priorityGroupControl.setValue('Mulheres');
     component.pcdControl.setValue('true');
-    component.minIncomeControl.setValue(100);
-    component.maxIncomeControl.setValue(500);
 
     component.applyAdvancedFilters();
 
@@ -97,9 +109,8 @@ describe('CitizenListComponent', () => {
       search: '',
       neighborhood: 'Centro',
       educationLevel: 'Médio',
+      priorityGroup: 'Mulheres',
       isPcd: true,
-      minIncome: 100,
-      maxIncome: 500,
       page: 1,
       limit: 10
     });

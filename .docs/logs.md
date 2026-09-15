@@ -214,3 +214,37 @@
 - Atualizados todos os caminhos da documentação para apontar para a pasta `files/` (`files/formulario.pdf`, `files/formulario.xlsx`, `files/atendimento.xlsx`).
 - Adicionadas regras ao `.gitignore` (`files/`, `*.xlsx`, `*.xls`) para blindar dados sensíveis de cidadãos e técnicos, impedindo seu versionamento para o GitHub (LGPD).
 
+## 2026-09-14 — Passo 1: Schema Prisma e Migration de Banco de Dados Concluídos
+- Atualizado `backend/prisma/schema.prisma`:
+  - `SocialProfile`: adicionados `social_programs` (TEXT) e `disability_cid` (TEXT). Removidos campos legados (`nis`, `per_capita_income`, `housing_status`, `family_members_count`, `receives_bolsa_familia`, `receives_bpc`, `pcd_description`).
+  - `ProfessionalProfile`: adicionado `priority_group` (TEXT).
+  - `Attendance`: adicionada a Nova Seção do Atendimento com `technician_name`, `technician_workplace` e `technician_contact`.
+  - `Citizen`: removidos campos legados (`rg`, `race_color`, `marital_status`, `email`, `address_street`, `address_number`, `zip_code`).
+  - Removidos ENUMs não mais utilizados: `RaceColor`, `MaritalStatus`, `HousingStatus`.
+- Criada e aplicada a migration `20260914173000_update_requirements_v2` nos bancos PostgreSQL de desenvolvimento (`sippat_dev`) e testes (`sippat_test`).
+- Regenerado o Prisma Client (`v6.19.3`).
+- Atualizado o script de carga `backend/prisma/seed.ts` para popular cidadãos e atendimentos com a nova estrutura enriquecida e opções do formulário oficial. Seed executado com sucesso.
+
+## 2026-09-15 — Conclusão da Fase 6: DTOs, Mappers, Parsers de Planilhas e Interface Angular
+- **Backend (DTOs e Mappers):**
+  - Atualizados `CreateCitizenDto` e `CreateAttendanceDto` para o novo schema v2, removendo campos legados e adicionando `socialPrograms`, `disabilityCid`, `priorityGroup`, `technicianName`, `technicianWorkplace` e `technicianContact`.
+  - Atualizado `CitizensService` com criptografia/descriptografia AES-256 para os dados socioeconômicos sensíveis (`socialPrograms`, `disabilityCid`) conforme RNF-003, e adicionado suporte ao filtro por `priorityGroup`.
+  - Atualizado `AttendancesService` para persistir e consultar a Nova Seção do Atendimento (dados do técnico).
+  - Atualizado `DataRetentionService` (job de anonimização) para o schema v2.
+- **Backend (Parsers de Importação):**
+  - Implementado em `ImportService` o parser para `files/formulario.xlsx` com suporte multi-abas (`Sheet1`, `Mulheres`, `POP`), mapeando as abas e cabeçalhos textuais para o cadastro do cidadão e gerando o primeiro atendimento com os dados do técnico.
+  - Implementado em `ImportService` o parser para `files/atendimento.xlsx` (histórico de encaminhamentos para vagas/entrevistas).
+  - Adicionado suporte a tratamento de duplicidade de CPF (ignorar ou sobrescrever).
+  - Atualizado `ImportController` com passagem segura do `userId`.
+- **Frontend (Angular):**
+  - Exibição de badge destacado de **Público Prioritário ao lado do nome da pessoa** na tabela de cidadãos (`CitizenListComponent`), nos cards e nos modais (`CitizenDetailsModalComponent`).
+  - Adicionada a **Nova Seção do Atendimento** no formulário de atendimento (`AttendanceFormComponent`) e no modal de detalhes (`AttendanceDetailsModalComponent`).
+  - Atualizado o formulário de cadastro de cidadão (`CitizenFormComponent`) com os campos v2 (`socialPrograms`, `disabilityCid`, dropdown com as opções oficiais de `priorityGroup`).
+  - Atualizada a tela de importação (`ImportComponent`) para suportar a seleção entre o formulário oficial (`formulario.xlsx`) e o histórico de atendimentos (`atendimento.xlsx`), com preview e resolução de duplicados.
+  - Ajustado o bundle budget inicial em `angular.json` para acomodar os componentes Angular Material.
+- **Testes e Qualidade (TDD):**
+  - Backend: 13 suítes de testes e 67 testes unitários passando (100% de sucesso), com alta cobertura.
+  - Frontend: 14 suítes de testes e 56 testes unitários passando (100% de sucesso).
+  - Build do backend (`nest build`) e do frontend (`ng build`) finalizados com sucesso sem erros.
+
+

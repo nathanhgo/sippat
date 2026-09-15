@@ -55,7 +55,7 @@ describe('ImportController', () => {
       const result = await controller.confirmImport(dto);
 
       expect(result).toEqual({ execute: 'ok' });
-      expect(service.execute).toHaveBeenCalledWith(dto);
+      expect(service.execute).toHaveBeenCalledWith(dto, undefined);
     });
   });
 });

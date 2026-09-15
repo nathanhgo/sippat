@@ -96,25 +96,25 @@
               </div>
             }
 
-            @if (attendance()?.citizen?.email) {
+            @if (attendance()?.citizen?.neighborhood) {
               <div>
-                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">E-mail</span>
-                <span class="text-slate-700 font-medium break-all">{{ attendance()?.citizen?.email }}</span>
+                <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Bairro</span>
+                <span class="text-slate-700 font-medium">{{ attendance()?.citizen?.neighborhood }}</span>
               </div>
             }
           </div>
         </div>
 
-        <!-- Atendente Card -->
+        <!-- Funcionário Atendente do Sistema -->
         <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
           <h3 class="text-sm font-semibold text-indigo-700 flex items-center gap-2 border-b border-slate-100 pb-2">
             <mat-icon class="scale-90">badge</mat-icon>
-            Funcionário Responsável
+            Atendente do Sistema
           </h3>
 
           <div class="space-y-3 text-sm">
             <div>
-              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Nome do Atendente</span>
+              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Nome</span>
               <span class="text-slate-700 font-bold">{{ attendance()?.user?.name || 'Sistema automatizado' }}</span>
             </div>
 
@@ -124,7 +124,7 @@
             </div>
 
             <div>
-              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Cargo / Perfil de Acesso</span>
+              <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Perfil</span>
               <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 mt-0.5">
                 {{ attendance()?.user?.role || 'ATTENDANT' }}
               </span>
@@ -132,6 +132,37 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Nova Seção do Atendimento: Dados do Técnico Responsável -->
+      <div class="bg-white p-5 rounded-lg border border-indigo-100 shadow-sm space-y-4">
+        <h3 class="text-sm font-semibold text-indigo-800 flex items-center gap-2 border-b border-indigo-50 pb-2">
+          <mat-icon class="text-indigo-600 scale-90">engineering</mat-icon>
+          Nova Seção do Atendimento — Dados do Técnico Responsável (RF-004, RF-009)
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Nome do Técnico</span>
+            <span class="text-slate-800 font-medium">
+              {{ attendance()?.technicianName || 'Não informado' }}
+            </span>
+          </div>
+
+          <div>
+            <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Local de Trabalho do Técnico</span>
+            <span class="text-slate-800 font-medium">
+              {{ attendance()?.technicianWorkplace || 'Não informado' }}
+            </span>
+          </div>
+
+          <div>
+            <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider">Contato do Técnico</span>
+            <span class="text-slate-800 font-medium">
+              {{ attendance()?.technicianContact || 'Não informado' }}
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- Observações / Detalhamento -->

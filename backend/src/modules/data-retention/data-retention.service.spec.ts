@@ -42,17 +42,12 @@ describe('DataRetentionService', () => {
         id: 'inactive-id',
         cpf: '12345678909',
         fullName: 'Maria Inativa',
-        rg: '1234567',
         phone: '123456789',
-        email: 'maria@example.com',
-        addressStreet: 'Rua das Flores',
-        addressNumber: '100',
-        zipCode: '12345678',
+        neighborhood: 'Centro',
         socialProfile: {
           id: 'profile-id',
-          nis: '12345678901',
-          perCapitaIncome: '100',
-          pcdDescription: 'Nenhuma',
+          socialPrograms: 'Bolsa Família',
+          disabilityCid: null,
         },
         attendances: [], // Sem atendimentos
       };
@@ -69,18 +64,13 @@ describe('DataRetentionService', () => {
         data: {
           fullName: 'CIDADÃO ANONIMIZADO',
           cpf: expect.any(String), // Deve randomizar ou mascarar o CPF
-          rg: null,
           phone: null,
-          email: null,
-          addressStreet: null,
-          addressNumber: null,
-          zipCode: null,
+          neighborhood: null,
           deletedAt: expect.any(Date),
           socialProfile: {
             update: {
-              nis: null,
-              perCapitaIncome: null,
-              pcdDescription: null,
+              socialPrograms: null,
+              disabilityCid: null,
             },
           },
         },

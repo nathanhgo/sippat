@@ -83,21 +83,13 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Raça / Cor</mat-label>
-              <mat-select formControlName="raceColor" required>
-                @for (color of raceColors; track color.value) {
-                  <mat-option [value]="color.value">{{ color.label }}</mat-option>
-                }
-              </mat-select>
+              <mat-label>Telefone para Contato</mat-label>
+              <input matInput formControlName="phone" placeholder="(12) 99999-9999">
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Estado Civil</mat-label>
-              <mat-select formControlName="maritalStatus" required>
-                @for (status of maritalStatuses; track status.value) {
-                  <mat-option [value]="status.value">{{ status.label }}</mat-option>
-                }
-              </mat-select>
+              <mat-label>Bairro</mat-label>
+              <input matInput formControlName="neighborhood" placeholder="Ex: Centro">
             </mat-form-field>
           </div>
         </div>
@@ -118,9 +110,37 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="w-full mt-3">
-            <mat-label>Observações do Atendimento</mat-label>
-            <textarea matInput formControlName="notes" rows="4" placeholder="Detalhes do atendimento, encaminhamentos ou perfil de vaga recomendada..."></textarea>
+            <mat-label>Observações do Atendimento e Encaminhamentos</mat-label>
+            <textarea matInput formControlName="notes" rows="3" placeholder="Detalhes do atendimento, encaminhamentos ou perfil de vaga recomendada..."></textarea>
           </mat-form-field>
+        </div>
+
+        <!-- Nova Seção do Atendimento: Dados do Técnico -->
+        <div class="border-t border-indigo-100 pt-4 bg-indigo-50/50 p-4 rounded-lg border">
+          <h3 class="text-sm font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+            <mat-icon class="scale-75 text-indigo-700">engineering</mat-icon>
+            Nova Seção do Atendimento — Dados do Técnico Responsável
+          </h3>
+          <p class="text-xs text-slate-500 mb-4">
+            Preencha os dados do técnico de referência em caso de encaminhamentos intersetoriais (CREAS, CRAS, ONGs, etc.)
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Nome do Técnico</mat-label>
+              <input matInput formControlName="technicianName" placeholder="Ex: Juliana de Fátima">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Local de Trabalho do Técnico</mat-label>
+              <input matInput formControlName="technicianWorkplace" placeholder="Ex: CREAS I, CRAS, PAT">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Contato do Técnico (Telefone / E-mail)</mat-label>
+              <input matInput formControlName="technicianContact" placeholder="Ex: (12) 3956-2183">
+            </mat-form-field>
+          </div>
         </div>
 
         <button 
