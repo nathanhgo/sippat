@@ -1,56 +1,115 @@
-# 💡 SIPPAT - Sistema Inteligente de Processos do PAT
+# SIPPAT - Sistema Inteligente de Processos do PAT
 
-Sistema desenvolvido para o Posto de Atendimento ao Trabalhador (PAT) de Jacareí, oferecendo controle modular de cidadãos, perfil profissional, indicadores socioeconômicos, histórico de atendimentos, importação inteligente de planilhas e total conformidade com as diretrizes da LGPD (criptografia, auditoria e anonimização de inativos).
+Sistema de gestão do Posto de Atendimento ao Trabalhador (PAT) de Jacareí:
+cadastro de cidadãos, perfil profissional e socioeconômico, histórico de
+atendimentos, busca avançada e importação de planilhas, com criptografia dos
+dados sensíveis e trilha de auditoria (LGPD).
 
----
+| Camada | Tecnologia |
+| :--- | :--- |
+| Backend | NestJS + TypeScript, Prisma ORM 6, JWT |
+| Frontend | Angular 22 + TailwindCSS 4 + Angular Material |
+| Banco | PostgreSQL 16 |
+| Testes | Vitest (unitário e E2E) + Playwright (E2E do frontend) |
 
-## 🚀 Como Executar o Projeto
+## Documentação
 
-### 1. Requisitos
-* Docker & Docker Compose
-* Node.js v20+
+- **[devs.md](devs.md)**: para quem vai mexer no código (arquitetura, API, banco, testes, problemas conhecidos).
+- **[guia.md](guia.md)**: para quem vai usar o sistema no dia a dia (linguagem simples, passo a passo das telas).
+- **[.docs/](.docs/)**: requisitos, arquitetura, schema do banco, plano de testes e histórico de decisões.
 
-### 2. Iniciando o Banco de Dados
-Na raiz do projeto, suba os containers do PostgreSQL:
+## Requisitos
+
+- Node.js 20 ou superior (o projeto roda no 26)
+- Docker e Docker Compose
+
+## Subindo o projeto
+
+### 1. Variáveis de ambiente
+
+```bash
+cp .env.example .env                 # portas e credenciais do Postgres
+cp backend/.env.example backend/.env # conexão da API com o banco
+```
+
+Os valores padrão funcionam para desenvolvimento. Se a porta `5433` já estiver
+ocupada na sua máquina, troque `POSTGRES_TEST_PORT` no `.env` da raiz e o
+`TEST_DATABASE_URL` no `backend/.env` (ver [devs.md](devs.md#banco-de-testes)).
+
+### 2. Banco de dados
+
 ```bash
 docker compose up -d
 ```
 
-### 3. Rodando o Backend (NestJS)
-1. Navegue até a pasta do backend: `cd backend`
-2. Instale as dependências: `npm install`
-3. Aplique as migrações no banco: `npx prisma migrate dev`
-4. Execute o servidor de desenvolvimento: `npm run start:dev`
+Sobe dois containers: `sippat_postgres` (desenvolvimento, porta 5432) e
+`sippat_postgres_test` (testes, porta 5433, dados em memória).
 
-### 4. Rodando o Frontend (Angular 22)
-1. Navegue até a pasta do frontend: `cd ../frontend` (ou abra um novo terminal na pasta `frontend`)
-2. Instale as dependências: `npm install`
-3. Execute a aplicação: `npm run start`
-4. Acesse em seu navegador: `http://localhost:4200`
+### 3. Backend
 
----
-
-## 🌱 Banco de Dados e Carga de Testes (Seeding)
-
-Para facilitar os testes locais, o projeto conta com um script de **seeding** que popula a base de dados com usuários administrativos e cidadãos fictícios contendo dados socioeconômicos criptografados.
-
-Para rodar a carga no banco:
 ```bash
 cd backend
-npx prisma db seed
+npm install
+npx prisma migrate deploy   # aplica as migrations
+npx prisma db seed          # popula usuários e cidadãos de exemplo
+npm run start:dev
 ```
 
-### 🔐 Contas Criadas pelo Seed
+API em `http://localhost:3000/api` e Swagger em `http://localhost:3000/docs`.
 
-Use estas credenciais para logar na tela inicial do sistema:
+### 4. Frontend
 
-| Tipo de Acesso | E-mail de Login | Senha de Acesso |
+```bash
+cd frontend
+npm install
+npm run start
+```
+
+Aplicação em `http://localhost:4200`.
+
+## Contas criadas pelo seed
+
+| Perfil | E-mail | Senha |
 | :--- | :--- | :--- |
-| **Administrador (ADMIN)** | `admin@sippat.jacarei.sp.gov.br` | `Admin@123` |
-| **Atendente (ATTENDANT)** | `atendente@sippat.jacarei.sp.gov.br` | `Attendant@123` |
+| Administrador | `admin@sippat.jacarei.sp.gov.br` | `Admin@123` |
+| Atendente | `atendente@sippat.jacarei.sp.gov.br` | `Attendant@123` |
 
-### 👥 Dados Populados de Cidadãos
-* **João Silva de Souza** (CPF: `529.982.247-25`): Cadastro básico, Programas Sociais (Bolsa Família) e Bairro Centro.
-* **Maria Aparecida Oliveira** (CPF: `912.384.750-60`): Perfil PcD com CID informado, Programas Sociais (BPC) e Público Prioritário (Mulheres vítimas de violência).
-* **Carlos Henrique dos Santos** (CPF: `123.456.789-09`): Cadastro básico com perfil profissional e histórico de experiências.
-* **Histórico de Atendimentos:** Registros vinculados contendo a Nova Seção do Atendimento com dados do técnico responsável (Nome, Local de trabalho e Contato).
+O seed também cria três cidadãos de exemplo (João Silva de Souza, Maria
+Aparecida Oliveira e Carlos Henrique dos Santos) com perfis socioeconômicos e
+histórico de atendimentos.
+
+## Testes
+
+```bash
+cd backend
+npm test                    # unitários (67 testes)
+npm run prisma:migrate:test # prepara o banco de testes
+npm run test:e2e            # E2E da API
+```
+
+```bash
+cd frontend
+npm test                    # unitários
+npm run test:e2e            # Playwright
+```
+
+## Estrutura
+
+```
+backend/          API NestJS
+  prisma/         schema, migrations e seed
+  src/modules/    auth, citizens, attendances, import, audit, data-retention
+  test/           testes E2E da API
+frontend/         aplicação Angular
+  src/app/core/   serviços, guardas e autenticação
+  src/app/features/  telas (auth, citizens, attendances, import)
+.docs/            documentação de requisitos e decisões
+docker-compose.yml  Postgres de desenvolvimento e de testes
+```
+
+## LGPD
+
+Dados socioeconômicos são criptografados em repouso, o acesso a dados sensíveis
+é registrado em `audit_logs` (retenção de 3 meses) e cadastros sem atendimento
+há mais de um ano são anonimizados por job diário. As planilhas reais de
+importação **não** ficam no repositório, justamente por conterem dados pessoais.
